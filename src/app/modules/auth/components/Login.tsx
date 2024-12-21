@@ -22,8 +22,8 @@ const loginSchema = Yup.object().shape({
 })
 
 const initialValues = {
-  email: 'admin@demo.com',
-  password: 'demo',
+  email: '',
+  password: '',
 }
 
 /*
@@ -46,6 +46,12 @@ export function Login() {
         const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password)
         const user = userCredential.user
         
+        if(!user.emailVerified){
+          auth.signOut()
+          setStatus('Email Not Varified')
+          setSubmitting(false)
+          return
+        }
         // Save auth state
         saveAuth({
           api_token: await user.getIdToken(),

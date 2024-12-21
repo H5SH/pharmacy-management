@@ -8,7 +8,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { toAbsoluteUrl } from '../../../../_metronic/helpers'
 import { PasswordMeterComponent } from '../../../../_metronic/assets/ts/components'
 import { useAuth } from '../core/Auth'
-import { createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
+import { createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithPopup, sendEmailVerification } from 'firebase/auth'
 import { auth } from '../../../../firebase/config'
 
 const initialValues = {
@@ -63,6 +63,8 @@ export function Registration() {
         await updateProfile(user, {
           displayName: `${values.firstname} ${values.lastname}`,
         })
+
+        sendEmailVerification(user)
 
         saveAuth({
           api_token: await user.getIdToken(),

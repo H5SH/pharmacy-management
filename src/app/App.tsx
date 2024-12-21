@@ -8,7 +8,7 @@ import {ThemeModeProvider} from '../_metronic/partials'
 
 const App = () => {
   const {classes} = useLayout()
-  console.log(classes, 'App')
+  
   return (
     <Suspense fallback={<LayoutSplashScreen />}>
       <I18nProvider>
