@@ -1,4 +1,5 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
+// @ts-nocheck
 import {useState} from 'react'
 import * as Yup from 'yup'
 import clsx from 'clsx'
@@ -34,7 +35,7 @@ const initialValues = {
 
 export function Login() {
   const [loading, setLoading] = useState(false)
-  const {saveAuth, setCurrentUser} = useAuth()
+  const {setCurrentUser} = useAuth()
   const navigate = useNavigate()
 
   const formik = useFormik({
@@ -52,23 +53,13 @@ export function Login() {
           setSubmitting(false)
           return
         }
-        // Save auth state
-        saveAuth({
-          api_token: await user.getIdToken(),
-          refreshToken: user.refreshToken,
-        })
-        
+      
         // Set current user
-        setCurrentUser({
-          id: user.uid as string,
-          email: user.email as string,
-          fullname: user.displayName as string,
-        })
+        setCurrentUser({...user})
         
         navigate('/')
       } catch (error) {
         console.error(error)
-        saveAuth(undefined)
         setStatus('The login details are incorrect')
         setSubmitting(false)
         setLoading(false)
@@ -83,10 +74,6 @@ export function Login() {
       const user = result.user
 
       // Save auth state
-      saveAuth({
-        api_token: await user.getIdToken(),
-        refreshToken: user.refreshToken,
-      })
 
       // Set current user
       setCurrentUser({

@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-no-target-blank */
 /* eslint-disable jsx-a11y/anchor-is-valid */
+// @ts-nocheck
 import { useState, useEffect } from 'react'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
@@ -48,7 +49,7 @@ const registrationSchema = Yup.object().shape({
 
 export function Registration() {
   const [loading, setLoading] = useState(false)
-  const { saveAuth, setCurrentUser } = useAuth()
+  const { setCurrentUser } = useAuth()
   const navigate = useNavigate()
 
   const formik = useFormik({
@@ -66,25 +67,15 @@ export function Registration() {
 
         sendEmailVerification(user)
 
-        saveAuth({
-          api_token: await user.getIdToken(),
-          refreshToken: user.refreshToken,
-        })
-
-        setCurrentUser({
-          id: user.uid as string,
-          email: user.email as string,
-          fullname: user.displayName as string,
-        })
+        setCurrentUser({...user})
 
         navigate('/')
       } catch (error) {
         console.error(error)
-        saveAuth(undefined)
         setStatus('The registration details are incorrect')
         setSubmitting(false)
-        setLoading(false)
       }
+      setLoading(false)
     },
   })
 

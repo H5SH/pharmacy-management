@@ -10,7 +10,6 @@ import {Dropdown2} from '../../../partials'
 
 const AsideDefault: FC = () => {
   const {classes} = useLayout()
-  console.log(classes, 'classestsx')
   return (
     <div
       id='kt_aside'
