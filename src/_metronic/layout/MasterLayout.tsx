@@ -10,6 +10,7 @@ import {Content} from './components/Content'
 import {PageDataProvider} from './core'
 import {ActivityDrawer, DrawerMessenger, InviteUsers, UpgradePlan} from '../partials'
 import {MenuComponent} from '../assets/ts/components'
+import { ToastContainer } from 'react-toastify'
 
 const MasterLayout = () => {
   const location = useLocation()
@@ -31,6 +32,8 @@ const MasterLayout = () => {
             <HeaderWrapper />
 
             <Toolbar />
+
+            <ToastContainer />
 
             {/* begin::Content */}
             <div id='kt_content' className='content d-flex flex-column flex-column-fluid'>
