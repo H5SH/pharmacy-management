@@ -5,14 +5,14 @@ import { firestore as db } from '../../../firebase/config'
 import { useAppContext } from '../../../utils/appContext'
 import ManufacturerForm from './form/ManufacturerForm'
 import { DeleteModal } from '../../../utils/component/DeleteModal'
-import { Manufacturer as ManufacturerModal} from '../../../utils/model'
+import { Manufacturer as ManufacturerModal } from '../../../utils/model'
 import { Toast } from '../../../utils/utilities'
 
 
 
 export default function Manufacturer() {
 
-  const {refresh} = useAppContext()
+  const { refresh } = useAppContext()
   const [manufacturers, setManufacturers] = useState<ManufacturerModal[]>([])
   const [showDrawer, setShowDrawer] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
@@ -27,12 +27,12 @@ export default function Manufacturer() {
     setManufacturers(manufacturerList)
   }
 
-  
+
   const handleEdit = (manufacturer: ManufacturerModal) => {
     setSelectedManufacturer(manufacturer)
     setShowDrawer(true)
   }
-  
+
   const handleDelete = async () => {
     if (selectedManufacturer) {
       try {
@@ -47,7 +47,7 @@ export default function Manufacturer() {
       }
     }
   }
-  
+
   const handleAddNew = () => {
     setSelectedManufacturer(null)
     setShowDrawer(true)
@@ -88,7 +88,7 @@ export default function Manufacturer() {
                         className='btn btn-sm btn-light-primary me-2'
                         onClick={() => handleEdit(manufacturer)}
                       >
-                        Edit
+                        <i className="bi bi-pencil fs-1"></i>
                       </button>
                       <button
                         className='btn btn-sm btn-light-danger'
@@ -97,7 +97,7 @@ export default function Manufacturer() {
                           setShowDeleteModal(true)
                         }}
                       >
-                        Delete
+                        <i className="bi bi-trash fs-1"></i>
                       </button>
                     </td>
                   </tr>
@@ -108,9 +108,9 @@ export default function Manufacturer() {
         </Card.Body>
       </Card>
 
-      <ManufacturerForm setShowDrawer={setShowDrawer} setSelectedManufacturer={setSelectedManufacturer} selectedManufacturer={selectedManufacturer} showDrawer={showDrawer}/>
+      <ManufacturerForm setShowDrawer={setShowDrawer} setSelectedManufacturer={setSelectedManufacturer} selectedManufacturer={selectedManufacturer} showDrawer={showDrawer} />
 
-      <DeleteModal showDeleteModal={showDeleteModal} setShowDeleteModal={setShowDeleteModal} handleDelete={handleDelete} item={selectedManufacturer}/>
+      <DeleteModal showDeleteModal={showDeleteModal} setShowDeleteModal={setShowDeleteModal} handleDelete={handleDelete} item={selectedManufacturer} />
     </div>
   )
 }

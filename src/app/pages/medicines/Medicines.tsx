@@ -123,7 +123,7 @@ export default function Medicines() {
                         className='btn btn-sm btn-light-primary me-2'
                         onClick={() => handleEdit(medicine)}
                       >
-                        Edit
+                            <i className="bi bi-pencil fs-1"></i>
                       </button>
                       <button
                         className='btn btn-sm btn-light-danger'
@@ -132,7 +132,7 @@ export default function Medicines() {
                           setShowDeleteModal(true)
                         }}
                       >
-                        Delete
+                            <i class="bi bi-trash fs-1"></i>
                       </button>
                     </td>
                   </tr>

@@ -21,7 +21,10 @@ export const DeleteModal = ({ showDeleteModal, setShowDeleteModal, item, handleD
             <button className='btn btn-light' onClick={() => setShowDeleteModal(false)}>
                 Cancel
             </button>
-            <button className='btn btn-danger' onClick={handleDelete}>
+            <button className='btn btn-danger' onClick={()=>{
+                setShowDeleteModal(false)
+                handleDelete()
+                }}>
                 Delete
             </button>
         </Modal.Footer>
