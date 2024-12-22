@@ -16,6 +16,14 @@ export function AsideMenuMain() {
         className='py-2'
       />
 
+    <AsideMenuItem
+        to='/stats'
+        title='Stats'
+        fontIcon='bi bi-speedometer2 fs-2'
+        bsTitle={intl.formatMessage({ id: 'MENU.DASHBOARD' })}
+        className='py-2'
+      />
+
       <AsideMenuItem
         to='/pharmacist'
         title='Pharmacist'

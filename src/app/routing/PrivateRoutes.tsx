@@ -10,6 +10,7 @@ import BuilderPageWrapper from '../pages/layout-builder/BuilderPageWrapper'
 import Pharmacist from '../pages/pharmacist/Pharmacist'
 import Manufacturer from '../pages/manufacturer/Manufacturer'
 import Medicines from '../pages/medicines/Medicines'
+import Home from '../pages/home/home'
 
 const PrivateRoutes = () => {
   const ProfilePage = lazy(() => import('../modules/profile/ProfilePage'))
@@ -25,7 +26,7 @@ const PrivateRoutes = () => {
         {/* Redirect to Dashboard after success login/registartion */}
         <Route path='auth/*' element={<Navigate to='/dashboard' />} />
         {/* Pages */}
-        <Route path='dashboard' element={<DashboardWrapper />} />
+        <Route path='dashboard' element={<Home />} />
         <Route path='builder' element={<BuilderPageWrapper />} />
         <Route path='menu-test' element={<MenuTestPage />} />
         {/* Lazy Modules */}
@@ -33,6 +34,7 @@ const PrivateRoutes = () => {
         <Route path='pharmacist' element={<Pharmacist />} />
         <Route path='manufacturer' element={<Manufacturer />} />
         <Route path='medicines' element={<Medicines />} />
+        <Route path='stats' element={<DashboardWrapper />} />
         {/* <Route
           path='crafted/pages/profile/*'
           element={
