@@ -67,8 +67,6 @@ export function Registration() {
 
         sendEmailVerification(user)
 
-        setCurrentUser({...user})
-
         navigate('/')
       } catch (error) {
         console.error(error)

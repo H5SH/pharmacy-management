@@ -51,6 +51,7 @@ export function Login() {
           auth.signOut()
           setStatus('Email Not Varified')
           setSubmitting(false)
+          setLoading(false)
           return
         }
       

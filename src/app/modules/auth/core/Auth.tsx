@@ -55,7 +55,7 @@ const AuthInit: FC<WithChildren> = ({children}) => {
   useEffect(() => {
     setShowSplashScreen(true)
     auth.onAuthStateChanged((user)=>{
-      if(user.uid){
+      if(user?.emailVerified){
         setCurrentUser({...user})
       }
     })
