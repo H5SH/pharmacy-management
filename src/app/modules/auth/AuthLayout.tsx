@@ -32,7 +32,6 @@ const AuthLayout = () => {
 
         {/* begin::Footer */}
         <div className='d-flex flex-center flex-wrap px-5'>
-          {/* begin::Links */}
           <div className='d-flex fw-semibold text-primary fs-base'>
             <a href='#' className='px-5' target='_blank'>
               Terms
@@ -46,7 +45,6 @@ const AuthLayout = () => {
               Contact Us
             </a>
           </div>
-          {/* end::Links */}
         </div>
         {/* end::Footer */}
       </div>
@@ -61,7 +59,7 @@ const AuthLayout = () => {
         <div className='d-flex flex-column flex-center py-15 px-5 px-md-15 w-100'>
           {/* begin::Logo */}
           <Link to='/' className='mb-12'>
-            <img alt='Logo' src={toAbsoluteUrl('/media/logos/custom-1.png')} className='h-75px' />
+            <img alt='Logo' src={toAbsoluteUrl('/media/logos/favicon.ico')} className='h-75px' />
           </Link>
           {/* end::Logo */}
 
