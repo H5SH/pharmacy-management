@@ -1,0 +1,53 @@
+//
+// Testimonials slider
+//
+
+.testimonials-slider-highlight {
+  transition: all ease 0.3;
+
+  .testimonials-photo,
+  .testimonials-title,
+  .testimonials-body,
+  .testimonials-author,
+  .testimonials-positon {
+    transition: all ease 0.3s;
+  }
+
+  .tns-item.tns-slide-active {
+    .testimonials-photo {
+      height: 200px;
+      transition: all ease 0.3s;
+    }
+
+    .testimonials-title {
+      color: var(--#{$prefix}gray-900);
+      font-size: 1.2rem;
+      transition: all ease 0.3s;
+    }
+
+    .testimonials-body {
+      color: var(--#{$prefix}gray-700);
+      font-size: 1.2rem;
+      transition: all ease 0.3s;
+    }
+
+    .testimonials-author {
+      color: var(--#{$prefix}primary);
+      font-size: 1.1rem;
+      transition: all ease 0.3s;
+    }
+
+    .testimonials-positon {
+      color: var(--#{$prefix}gray-500);
+      font-size: 0.9rem;
+      transition: all ease 0.3s;
+    }
+  }
+}
+
+.testimonials-slider-quote {
+  .tns-item.tns-slide-active {
+    .testimonials-quote {
+    }
+  }
+}
