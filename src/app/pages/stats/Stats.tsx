@@ -1,21 +1,45 @@
-import {useEffect} from 'react'
+import {useEffect, useState} from 'react'
 import {useIntl} from 'react-intl'
 import {PageTitle} from '../../../_metronic/layout/core'
 import {
-  ListsWidget3,
-  ListsWidget4,
-  ListsWidget5,
-  ListsWidget9,
   MixedWidget6,
   MixedWidget7,
   MixedWidget8,
   StatisticsWidget5,
-  TablesWidget11,
-  TablesWidget9,
 } from '../../../_metronic/partials/widgets'
+import { PredictionData, PredictionModel } from '../../../utils/model'
+
 
 const DashboardPage = () => {
+
+  const [predictionData, setPredictionData] = useState<PredictionModel | undefined>()
+
+  async function getSalePrediction(){
+    try{
+      const response = await fetch('http://127.0.0.1:8000/predict-sales')
+      const result: Array<PredictionData> = await response.json()
+      if(Array.isArray(result)){
+        const dates = []
+        const yhat = []
+        const yhat_lower = []
+        const yhat_upper = []
+        result.map((row: PredictionData, index)=> {
+          if(index < 2){
+            dates.push(row.ds.split('T')[0])
+            yhat.push(Math.floor(row.yhat))
+            yhat_lower.push(Math.floor(row.yhat_lower))
+            yhat_upper.push(Math.floor(row.yhat_upper))
+          }
+        })
+        setPredictionData({dates, yhat, yhat_lower, yhat_upper})
+      }
+    }catch(er){
+      console.log(er)
+    }
+  }
+
   useEffect(() => {
+    getSalePrediction()
     // We have to show toolbar only for dashboard page
     document.getElementById('kt_layout_toolbar')?.classList.remove('d-none')
     return () => {
@@ -28,7 +52,6 @@ const DashboardPage = () => {
       <PageTitle breadcrumbs={[]} description='#XRS-45670'>
         Dashboard
       </PageTitle>
-      {/* begin::Row */}
       <div className='row g-5 g-xl-8'>
         <div className='col-xl-4'>
           <StatisticsWidget5
@@ -49,10 +72,10 @@ const DashboardPage = () => {
             svgIcon='cheque'
             color='primary'
             iconColor='white'
-            title='Appartments'
+            title='Total Meds: 50'
             titleColor='white'
             descriptionColor='white'
-            description='Flats, Shared Rooms, Duplex'
+            description='Tablets: 10, liquid: 30, Others: 10'
           />
         </div>
 
@@ -69,11 +92,8 @@ const DashboardPage = () => {
           />
         </div>
       </div>
-      {/* end::Row */}
 
-      {/* begin::Row */}
       <div className='row gy-5 g-xl-8'>
-        {/* begin::Col */}
         <div className='col-xl-4'>
           <MixedWidget6
             className='card-xl-stretch mb-xl-8'
@@ -81,43 +101,31 @@ const DashboardPage = () => {
             chartHeight='150px'
           />
         </div>
-        {/* end::Col */}
 
-        {/* begin::Col */}
         <div className='col-xl-4'>
           <MixedWidget7 className='card-xl-stretch' chartColor='primary' chartHeight='225px' />
         </div>
-        {/* end::Col */}
 
-        {/* begin::Col */}
         <div className='col-xl-4'>
           <MixedWidget8
             className='card-xl-stretch mb-5 mb-xl-8'
             chartColor='danger'
             chartHeight='150px'
+            predictionData={predictionData}
           />
         </div>
-        {/* end::Col */}
       </div>
-      {/* end::Row */}
 
-      {/* begin::Row */}
-      <div className='row gy-5 g-xl-8'>
-        {/* begin::Col */}
+      {/* <div className='row gy-5 g-xl-8'>
         <div className='col-xxl-4'>
           <ListsWidget9 className='card-xxl-stretch' />
         </div>
-        {/* end::Col */}
 
-        {/* begin::Col */}
         <div className='col-xxl-8'>
           <TablesWidget9 className='card-xxl-stretch mb-5 mb-xl-8' />
         </div>
-        {/* end::Col */}
       </div>
-      {/* end::Row */}
 
-      {/* begin::Row */}
       <div className='row g-5 g-xl-8'>
         <div className='col-xl-4'>
           <ListsWidget4 className='card-xl-stretch mb-xl-8' />
@@ -131,13 +139,10 @@ const DashboardPage = () => {
           <ListsWidget3 className='card-xl-stretch mb-5 mb-xl-8' />
         </div>
       </div>
-      {/* end::Row */}
 
-      {/* begin::Row */}
       <div className='g-5 gx-xxl-8'>
         <TablesWidget11 className='' />
-      </div>
-      {/* end::Row */}
+      </div> */}
     </>
   )
 }
