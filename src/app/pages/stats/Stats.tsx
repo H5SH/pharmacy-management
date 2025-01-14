@@ -18,18 +18,17 @@ const DashboardPage = () => {
     try{
       const response = await fetch('http://127.0.0.1:8000/predict-sales')
       const result: Array<PredictionData> = await response.json()
+      console.log(result, 'result')
       if(Array.isArray(result)){
         const dates = []
         const yhat = []
         const yhat_lower = []
         const yhat_upper = []
         result.map((row: PredictionData, index)=> {
-          if(index < 2){
             dates.push(row.ds.split('T')[0])
-            yhat.push(Math.floor(row.yhat))
-            yhat_lower.push(Math.floor(row.yhat_lower))
-            yhat_upper.push(Math.floor(row.yhat_upper))
-          }
+            yhat.push(Math.floor(row.yhat / 10))
+            yhat_lower.push(Math.floor(row.yhat_lower / 10))
+            yhat_upper.push(Math.floor(row.yhat_upper / 10))
         })
         setPredictionData({dates, yhat, yhat_lower, yhat_upper})
       }
