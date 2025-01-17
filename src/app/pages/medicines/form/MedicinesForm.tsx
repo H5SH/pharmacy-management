@@ -1,12 +1,12 @@
 // @ts-nocheck
+import { addDoc, collection, doc, updateDoc } from "firebase/firestore";
 import { FieldArray, FormikProvider, useFormik } from "formik";
+import { useState } from "react";
 import { Offcanvas } from "react-bootstrap";
 import * as Yup from 'yup';
-import { addDoc, collection, doc, updateDoc } from "firebase/firestore";
 import { firestore } from "../../../../firebase/config";
 import { useAppContext } from "../../../../utils/appContext";
 import { Toast } from "../../../../utils/utilities";
-import { useState } from "react";
 
 interface MedicinesModal {
   setShowDrawer: any

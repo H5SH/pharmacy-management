@@ -1,11 +1,11 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, {FC} from 'react'
+import { FC } from 'react'
 
 const MegaMenu: FC = () => (
   <div className='row' data-kt-menu-dismiss='true'>
     <div className='col-lg-4 border-left-lg-1'>
       <div className='menu-inline menu-column menu-active-bg'>
-        <div className='menu-item'>
+      <div className='menu-item'>
           <a href='#' className='menu-link'>
             <span className='menu-bullet'>
               <span className='bullet bullet-dot'></span>
@@ -138,4 +138,5 @@ const MegaMenu: FC = () => (
   </div>
 )
 
-export {MegaMenu}
+export { MegaMenu }
+

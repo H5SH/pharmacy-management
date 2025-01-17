@@ -1,11 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import clsx from 'clsx'
-import {Link} from 'react-router-dom'
-import {KTIcon, toAbsoluteUrl} from '../../../helpers'
-import {useLayout} from '../../core'
-import {Header} from './Header'
-import {DefaultTitle} from './page-title/DefaultTitle'
-import {Topbar} from './Topbar'
+import { Link } from 'react-router-dom'
+import { KTIcon, toAbsoluteUrl } from '../../../helpers'
+import { useLayout } from '../../core'
+import { DefaultTitle } from './page-title/DefaultTitle'
+import { Topbar } from './Topbar'
 
 export function HeaderWrapper() {
   const {config, classes, attributes} = useLayout()
@@ -48,7 +47,7 @@ export function HeaderWrapper() {
         <div className={'d-flex align-items-stretch justify-content-between flex-lg-grow-1'}>
           {header.menu && (
             <div className='d-flex align-items-stretch' id='kt_header_nav'>
-              <Header />
+              {/* <Header /> */}
             </div>
           )}
           {header.left === 'page-title' && (

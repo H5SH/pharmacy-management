@@ -1,16 +1,15 @@
-import {useEffect} from 'react'
-import {Outlet, useLocation} from 'react-router-dom'
-import {AsideDefault} from './components/aside/AsideDefault'
-import {Footer} from './components/Footer'
-import {HeaderWrapper} from './components/header/HeaderWrapper'
-import {Toolbar} from './components/toolbar/Toolbar'
-import {RightToolbar} from '../partials/layout/RightToolbar'
-import {ScrollTop} from './components/ScrollTop'
-import {Content} from './components/Content'
-import {PageDataProvider} from './core'
-import {ActivityDrawer, DrawerMessenger, InviteUsers, UpgradePlan} from '../partials'
-import {MenuComponent} from '../assets/ts/components'
+import { useEffect } from 'react'
+import { Outlet, useLocation } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
+import { MenuComponent } from '../assets/ts/components'
+import { ActivityDrawer, DrawerMessenger, InviteUsers, UpgradePlan } from '../partials'
+import { AsideDefault } from './components/aside/AsideDefault'
+import { Content } from './components/Content'
+import { Footer } from './components/Footer'
+import { HeaderWrapper } from './components/header/HeaderWrapper'
+import { ScrollTop } from './components/ScrollTop'
+import { Toolbar } from './components/toolbar/Toolbar'
+import { PageDataProvider } from './core'
 
 const MasterLayout = () => {
   const location = useLocation()
@@ -29,7 +28,7 @@ const MasterLayout = () => {
           <AsideDefault />
           {/* begin::Wrapper */}
           <div className='wrapper d-flex flex-column flex-row-fluid' id='kt_wrapper'>
-            <HeaderWrapper />
+            <HeaderWrapper /> 
 
             <Toolbar />
 
@@ -64,4 +63,5 @@ const MasterLayout = () => {
   )
 }
 
-export {MasterLayout}
+export { MasterLayout }
+

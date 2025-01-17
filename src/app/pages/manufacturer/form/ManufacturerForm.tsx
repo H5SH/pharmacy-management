@@ -1,12 +1,13 @@
 // @ts-nocheck
-import { addDoc, collection, doc, updateDoc, getDocs, query, where } from "firebase/firestore"
+import { addDoc, collection, doc, getDocs, query, updateDoc, where } from "firebase/firestore"
 import { useFormik } from "formik"
+import { useState } from "react"
+import { Offcanvas } from "react-bootstrap"
 import * as Yup from 'yup'
+import { FormField } from "../../../../component/form-utils"
 import { firestore as db } from "../../../../firebase/config"
 import { useAppContext } from "../../../../utils/appContext"
-import { Offcanvas } from "react-bootstrap"
 import { Toast } from "../../../../utils/utilities"
-import { useState } from "react"
 
 interface ManufacturerModal {
     setShowDrawer: any
@@ -79,19 +80,7 @@ export default function ManufacturerForm({setShowDrawer, setSelectedManufacturer
             </Offcanvas.Header>
             <Offcanvas.Body>
                 <form onSubmit={formik.handleSubmit}>
-                    <div className='mb-3'>
-                        <label className='form-label required'>Manufacturer Name</label>
-                        <input
-                            type='text'
-                            className={`form-control ${
-                                formik.touched.name && formik.errors.name ? 'is-invalid' : ''
-                            }`}
-                            {...formik.getFieldProps('name')}
-                        />
-                        {formik.touched.name && formik.errors.name && (
-                            <div className='invalid-feedback'>{formik.errors.name}</div>
-                        )}
-                    </div>
+                    <FormField formik={formik} name="name" label="Menufacturer"/>
                     <div className='text-end'>
                         <button type='submit' className='btn btn-primary' disabled={btnLoading}>
                             {selectedManufacturer ? 'Update' : 'Save'}

@@ -1,18 +1,18 @@
 // @ts-nocheck
 import {
-  FC,
-  useState,
-  useEffect,
   createContext,
-  useContext,
-  useRef,
   Dispatch,
+  FC,
   SetStateAction,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
 } from 'react'
-import {LayoutSplashScreen} from '../../../../_metronic/layout/core'
-import {UserModel} from './_models'
-import {WithChildren} from '../../../../_metronic/helpers'
+import { WithChildren } from '../../../../_metronic/helpers'
 import { auth } from '../../../../firebase/config'
+import SplashScreen from '../components/SplashScreen'
+import { UserModel } from './_models'
 
 type AuthContextProps = {
   currentUser: UserModel | undefined
@@ -53,17 +53,16 @@ const AuthInit: FC<WithChildren> = ({children}) => {
   const [showSplashScreen, setShowSplashScreen] = useState(true)
   // We should request user by authToken (IN OUR EXAMPLE IT'S API_TOKEN) before rendering the application
   useEffect(() => {
-    setShowSplashScreen(true)
     auth.onAuthStateChanged((user)=>{
       if(user?.emailVerified){
         setCurrentUser({...user})
       }
+      setShowSplashScreen(false)
     })
-    setShowSplashScreen(false)
-    // eslint-disable-next-line
   }, [])
 
-  return showSplashScreen ? <LayoutSplashScreen /> : <>{children}</>
+  return showSplashScreen ? <SplashScreen />:<>{children}</> 
 }
 
-export {AuthProvider, AuthInit, useAuth}
+export { AuthInit, AuthProvider, useAuth }
+
