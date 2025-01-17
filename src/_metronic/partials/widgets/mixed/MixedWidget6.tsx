@@ -1,20 +1,22 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, {useEffect, useRef} from 'react'
-import ApexCharts, {ApexOptions} from 'apexcharts'
-import {KTIcon} from '../../../helpers'
-import {getCSSVariableValue} from '../../../assets/ts/_utils'
-import {Dropdown1} from '../../content/dropdown/Dropdown1'
-import {useThemeMode} from '../../layout/theme-mode/ThemeModeProvider'
+import React, { useEffect, useRef } from 'react'
+import ApexCharts, { ApexOptions } from 'apexcharts'
+import { KTIcon } from '../../../helpers'
+import { getCSSVariableValue } from '../../../assets/ts/_utils'
+import { Dropdown1 } from '../../content/dropdown/Dropdown1'
+import { useThemeMode } from '../../layout/theme-mode/ThemeModeProvider'
 
 type Props = {
   className: string
   chartHeight: string
   chartColor: string
+  meds: Array<any>
+  setSelectedMedName: any
 }
 
-const MixedWidget6: React.FC<Props> = ({className, chartHeight, chartColor}) => {
+const MixedWidget6: React.FC<Props> = ({ className, chartHeight, chartColor, meds, setSelectedMedName }) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
-  const {mode} = useThemeMode()
+  const { mode } = useThemeMode()
   const refreshChart = () => {
     if (!chartRef.current) {
       return
@@ -27,6 +29,7 @@ const MixedWidget6: React.FC<Props> = ({className, chartHeight, chartColor}) => 
 
     return chart
   }
+
 
   useEffect(() => {
     const chart = refreshChart()
@@ -65,6 +68,18 @@ const MixedWidget6: React.FC<Props> = ({className, chartHeight, chartColor}) => 
         </div>
       </div>
       {/* end::Header */}
+      <div className="row">
+        <div className="col-2"></div>
+        <div className="col-8">
+          <select className='form-select' onChange={(e)=> setSelectedMedName(e.target.value)}>
+            {meds.map((med, index)=>(
+              <option key={index} value={med.name}>{med.name}</option>
+            ))}
+          </select>
+        </div>
+        <div className="col-2"></div>
+      </div>
+
 
       {/* begin::Body */}
       <div className='card-body p-0 d-flex flex-column'>
@@ -139,7 +154,7 @@ const MixedWidget6: React.FC<Props> = ({className, chartHeight, chartColor}) => 
           ref={chartRef}
           className='mixed-widget-3-chart card-rounded-bottom'
           data-kt-chart-color={chartColor}
-          style={{height: chartHeight}}
+          style={{ height: chartHeight }}
         ></div>
         {/* end::Chart */}
       </div>
@@ -271,4 +286,4 @@ const chartOptions = (chartHeight: string, chartColor: string): ApexOptions => {
   }
 }
 
-export {MixedWidget6}
+export { MixedWidget6 }

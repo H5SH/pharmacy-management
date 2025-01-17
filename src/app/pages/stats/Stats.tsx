@@ -8,17 +8,49 @@ import {
   StatisticsWidget5,
 } from '../../../_metronic/partials/widgets'
 import { PredictionData, PredictionModel } from '../../../utils/model'
+import { Toast } from '../../../utils/utilities'
+import { collection, getDocs, query } from 'firebase/firestore'
+import { firestore } from '../../../firebase/config'
 
 
 const DashboardPage = () => {
 
   const [predictionData, setPredictionData] = useState<PredictionModel | undefined>()
+  const [predictionByName, setPredictionByName] = useState();
+  const [selectedMedName, setSelectedMedName] = useState();
+  const [meds, setMeds] = useState<Array<any>>();
+
+  async function getSalesByName(){
+    if(selectedMedName){
+      try{
+        const response = await fetch(`http://127.0.0.1:8000/predict-sales-medicine/?name=${selectedMedName}`)
+        const result = await response.json()
+        console.log(result, 'result')
+      }catch(er){
+        console.log(er)
+        Toast('error', 'Failed To get Medicines by Name')
+      }
+    }
+  }
+
+  async function getAllMeds(){
+    try{
+      // const q = query(collection(firestore, 'medicines'))
+      const response = await getDocs(query(collection(firestore, 'medicines')))
+      if(!response.empty){
+        setMeds(response.docs.map((med)=> med.data()))
+      }
+    }catch(er){
+      console.log(er)    
+    }
+  }
+
+
 
   async function getSalePrediction(){
     try{
       const response = await fetch('http://127.0.0.1:8000/predict-sales')
       const result: Array<PredictionData> = await response.json()
-      console.log(result, 'result')
       if(Array.isArray(result)){
         const dates = []
         const yhat = []
@@ -37,8 +69,14 @@ const DashboardPage = () => {
     }
   }
 
+  useEffect(()=>{
+    getSalesByName()
+  },[selectedMedName])
+
   useEffect(() => {
     getSalePrediction()
+    getSalesByName()
+    getAllMeds()
     // We have to show toolbar only for dashboard page
     document.getElementById('kt_layout_toolbar')?.classList.remove('d-none')
     return () => {
@@ -98,6 +136,8 @@ const DashboardPage = () => {
             className='card-xl-stretch mb-xl-8'
             chartColor='primary'
             chartHeight='150px'
+            meds={meds}
+            setSelectedMedName={setSelectedMedName}
           />
         </div>
 

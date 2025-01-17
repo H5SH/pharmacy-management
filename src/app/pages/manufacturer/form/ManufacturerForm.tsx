@@ -2,7 +2,7 @@
 import { addDoc, collection, doc, updateDoc, getDocs, query, where } from "firebase/firestore"
 import { useFormik } from "formik"
 import * as Yup from 'yup'
-import { firestore as db } from "../../../../firebase/config"
+import { auth, firestore as db } from "../../../../firebase/config"
 import { useAppContext } from "../../../../utils/appContext"
 import { Offcanvas } from "react-bootstrap"
 import { Toast } from "../../../../utils/utilities"
@@ -41,10 +41,9 @@ export default function ManufacturerForm({setShowDrawer, setSelectedManufacturer
           try {
             const nameExists = await checkManufacturerExists(values.name)
             
-            if (nameExists && (!selectedManufacturer || selectedManufacturer.name !== values.name)) {
+            if ((!selectedManufacturer || selectedManufacturer.name !== values.name)) {
               setFieldError('name', 'A manufacturer with this name already exists')
               setBtnLoading(false)
-              return
             }
 
             if (selectedManufacturer) {
@@ -53,6 +52,8 @@ export default function ManufacturerForm({setShowDrawer, setSelectedManufacturer
               })
               Toast('success','Updated Successfully')
             } else {
+              console.log('add')
+              console.log(auth, 'auth')
               await addDoc(collection(db, 'manufacturers'), {
                 name: values.name,
               })
