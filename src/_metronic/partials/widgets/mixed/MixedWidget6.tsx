@@ -10,11 +10,13 @@ type Props = {
   className: string
   chartHeight: string
   chartColor: string
-  meds: Array<any>
-  setSelectedMedName: any
+  meds?: Array<any>
+  setSelectedMedName?: any
+  selectedMedName?: string
+  predictionData?: { dates: Array<string>, yhat: Array<number>, yhat_lower: Array<number>, yhat_upper: Array<number>, average: number, averagelower: number, averageUpper: number } | undefined
 }
 
-const MixedWidget6: React.FC<Props> = ({ className, chartHeight, chartColor, meds, setSelectedMedName }) => {
+const MixedWidget6: React.FC<Props> = ({ className, chartHeight, chartColor, meds, setSelectedMedName, selectedMedName, predictionData }) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const { mode } = useThemeMode()
   const refreshChart = () => {
@@ -22,7 +24,7 @@ const MixedWidget6: React.FC<Props> = ({ className, chartHeight, chartColor, med
       return
     }
 
-    const chart = new ApexCharts(chartRef.current, chartOptions(chartHeight, chartColor))
+    const chart = new ApexCharts(chartRef.current, chartOptions(chartHeight, chartColor, predictionData))
     if (chart) {
       chart.render()
     }
@@ -40,7 +42,7 @@ const MixedWidget6: React.FC<Props> = ({ className, chartHeight, chartColor, med
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chartRef, mode])
+  }, [chartRef, mode, predictionData])
 
   return (
     <div className={`card ${className}`}>
@@ -72,7 +74,7 @@ const MixedWidget6: React.FC<Props> = ({ className, chartHeight, chartColor, med
         <div className="col-2"></div>
         <div className="col-8">
           <select className='form-select' onChange={(e)=> setSelectedMedName(e.target.value)}>
-            {meds.map((med, index)=>(
+            {meds?.map((med, index)=>(
               <option key={index} value={med.name}>{med.name}</option>
             ))}
           </select>
@@ -90,12 +92,12 @@ const MixedWidget6: React.FC<Props> = ({ className, chartHeight, chartColor, med
             {/* begin::Col */}
             <div className='col mr-8'>
               {/* begin::Label */}
-              <div className='fs-7 text-muted fw-semibold'>Average Sale</div>
+              <div className='fs-7 text-muted fw-semibold'>Maximum Sale</div>
               {/* end::Label */}
 
               {/* begin::Stat */}
               <div className='d-flex align-items-center'>
-                <div className='fs-4 fw-bold'>$650</div>
+                <div className='fs-4 fw-bold'>{predictionData?.averagelower}</div>
                 <KTIcon iconName='arrow-up' className='fs-5 text-success ms-1' />
               </div>
               {/* end::Stat */}
@@ -105,11 +107,11 @@ const MixedWidget6: React.FC<Props> = ({ className, chartHeight, chartColor, med
             {/* begin::Col */}
             <div className='col'>
               {/* begin::Label */}
-              <div className='fs-7 text-muted fw-semibold'>Commission</div>
+              <div className='fs-7 text-muted fw-semibold'>Medicine Name</div>
               {/* end::Label */}
 
               {/* begin::Stat */}
-              <div className='fs-4 fw-bold'>$233,600</div>
+              <div className='fs-4 fw-bold'>{selectedMedName}</div>
               {/* end::Stat */}
             </div>
             {/* end::Col */}
@@ -121,11 +123,11 @@ const MixedWidget6: React.FC<Props> = ({ className, chartHeight, chartColor, med
             {/* begin::Col */}
             <div className='col mr-8'>
               {/* begin::Label */}
-              <div className='fs-7 text-muted fw-semibold'>Annual Taxes 2019</div>
+              <div className='fs-7 text-muted fw-semibold'>Average Sale</div>
               {/* end::Label */}
 
               {/* begin::Stat */}
-              <div className='fs-4 fw-bold'>$29,004</div>
+              <div className='fs-4 fw-bold'>{predictionData?.average}</div>
               {/* end::Stat */}
             </div>
             {/* end::Col */}
@@ -133,12 +135,12 @@ const MixedWidget6: React.FC<Props> = ({ className, chartHeight, chartColor, med
             {/* begin::Col */}
             <div className='col'>
               {/* begin::Label */}
-              <div className='fs-7 text-muted fw-semibold'>Annual Income</div>
+              <div className='fs-7 text-muted fw-semibold'>Minmum Sale</div>
               {/* end::Label */}
 
               {/* begin::Stat */}
               <div className='d-flex align-items-center'>
-                <div className='fs-4 fw-bold'>$1,480,00</div>
+                <div className='fs-4 fw-bold'>{predictionData?.averagelower}</div>
                 <KTIcon iconName='arrow-down' className='fs-5 text-danger ms-1' />
               </div>
               {/* end::Stat */}
@@ -163,7 +165,7 @@ const MixedWidget6: React.FC<Props> = ({ className, chartHeight, chartColor, med
   )
 }
 
-const chartOptions = (chartHeight: string, chartColor: string): ApexOptions => {
+const chartOptions = (chartHeight: string, chartColor: string, predictionData: { dates: Array<string>, yhat: Array<number>, yhat_lower: Array<number>, yhat_upper: Array<number>, average: number, averagelower: number, averageUpper: number } | undefined): ApexOptions => {
   const labelColor = getCSSVariableValue('--bs-gray-800')
   const strokeColor = getCSSVariableValue('--bs-gray-300')
   const baseColor = getCSSVariableValue('--bs-' + chartColor)
@@ -173,7 +175,7 @@ const chartOptions = (chartHeight: string, chartColor: string): ApexOptions => {
     series: [
       {
         name: 'Net Profit',
-        data: [30, 25, 45, 30, 55, 55],
+        data: predictionData?.yhat || [],
       },
     ],
     chart: {
@@ -208,7 +210,7 @@ const chartOptions = (chartHeight: string, chartColor: string): ApexOptions => {
       colors: [baseColor],
     },
     xaxis: {
-      categories: ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+      categories: predictionData?.dates || [],
       axisBorder: {
         show: false,
       },

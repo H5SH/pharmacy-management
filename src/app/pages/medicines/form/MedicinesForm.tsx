@@ -59,8 +59,8 @@ export default function MedicinesForm({ setShowDrawer, showDrawer, manufacturers
       }),
       customFields: Yup.array().of(
         Yup.object().shape({
-          key: Yup.string().required('Field name is required'),
-          value: Yup.string().required('Field value is required'),
+          key: Yup.string(),
+          value: Yup.string()
         })
       ),
     }),

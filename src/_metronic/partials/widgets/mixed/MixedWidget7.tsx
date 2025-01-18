@@ -10,9 +10,10 @@ type Props = {
   className: string
   chartColor: string
   chartHeight: string
+  percentage?: number
 }
 
-const MixedWidget7: React.FC<Props> = ({className, chartColor, chartHeight}) => {
+const MixedWidget7: React.FC<Props> = ({className, chartColor, chartHeight, percentage}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
   const refreshChart = () => {
@@ -20,7 +21,7 @@ const MixedWidget7: React.FC<Props> = ({className, chartColor, chartHeight}) => 
       return
     }
 
-    const chart = new ApexCharts(chartRef.current, chartOptions(chartColor, chartHeight))
+    const chart = new ApexCharts(chartRef.current, chartOptions(chartColor, chartHeight, percentage))
     if (chart) {
       chart.render()
     }
@@ -37,7 +38,7 @@ const MixedWidget7: React.FC<Props> = ({className, chartColor, chartHeight}) => 
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chartRef, mode])
+  }, [chartRef, mode, percentage])
 
   return (
     <div className={`card ${className}`}>
@@ -89,13 +90,13 @@ const MixedWidget7: React.FC<Props> = ({className, chartColor, chartHeight}) => 
   )
 }
 
-const chartOptions = (chartColor: string, chartHeight: string): ApexOptions => {
+const chartOptions = (chartColor: string, chartHeight: string, percentage: number): ApexOptions => {
   const baseColor = getCSSVariableValue('--bs-' + chartColor)
   const lightColor = getCSSVariableValue('--bs-' + chartColor + '-light')
   const labelColor = getCSSVariableValue('--bs-gray-700')
 
   return {
-    series: [74],
+    series: [percentage || 0],
     chart: {
       fontFamily: 'inherit',
       height: chartHeight,
