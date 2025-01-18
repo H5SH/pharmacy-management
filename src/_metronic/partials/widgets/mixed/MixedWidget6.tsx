@@ -32,7 +32,6 @@ const MixedWidget6: React.FC<Props> = ({ className, chartHeight, chartColor, med
     return chart
   }
 
-
   useEffect(() => {
     const chart = refreshChart()
 

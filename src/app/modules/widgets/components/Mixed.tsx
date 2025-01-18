@@ -193,31 +193,31 @@ const Mixed: FC = () => {
       <div className='row g-5 g-xl-8'>
         {/* begin::Col */}
         <div className='col-xl-4'>
-          <MixedWidget6
+          {/* <MixedWidget6
             className='card-xl-stretch mb-xl-8'
             chartColor='primary'
             chartHeight='150px'
-          />
+          /> */}
         </div>
         {/* end::Col */}
 
         {/* begin::Col */}
         <div className='col-xl-4'>
-          <MixedWidget6
+          {/* <MixedWidget6
             className='card-xl-stretch mb-xl-8'
             chartColor='danger'
             chartHeight='150px'
-          />
+          /> */}
         </div>
         {/* end::Col */}
 
         {/* begin::Col */}
         <div className='col-xl-4'>
-          <MixedWidget6
+          {/* <MixedWidget6
             className='card-xl-stretch mb-5 mb-xl-8'
             chartColor='success'
             chartHeight='150px'
-          />
+          /> */}
         </div>
         {/* end::Col */}
       </div>
