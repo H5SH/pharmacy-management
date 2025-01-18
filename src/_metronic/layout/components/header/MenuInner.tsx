@@ -1,14 +1,15 @@
-import { useIntl } from 'react-intl'
-import { MegaMenu } from './MegaMenu'
-import { MenuInnerWithSub } from './MenuInnerWithSub'
-import { MenuItem } from './MenuItem'
+import React from 'react'
+import {MenuItem} from './MenuItem'
+import {MenuInnerWithSub} from './MenuInnerWithSub'
+import {MegaMenu} from './MegaMenu'
+import {useIntl} from 'react-intl'
 
 export function MenuInner() {
   const intl = useIntl()
   return (
     <>
-       <MenuItem title={intl.formatMessage({id: 'MENU.DASHBOARD'})} to='/dashboard' />
-        <MenuItem title='Layout Builder' to='/builder' />
+      <MenuItem title={intl.formatMessage({id: 'MENU.DASHBOARD'})} to='/dashboard' />
+      <MenuItem title='Layout Builder' to='/builder' />
       <MenuInnerWithSub
         title='Crafted'
         to='/crafted'

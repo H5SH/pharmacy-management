@@ -1,13 +1,12 @@
 {
-  "name": "demo6",
-  "version": "8.1.9",
+  "name": "pharmacy",
+  "version": "0.1.0",
   "private": true,
-  "homepage": "/metronic8/react/demo6",
   "dependencies": {
     "@formatjs/intl-pluralrules": "5.2.4",
     "@formatjs/intl-relativetimeformat": "11.2.4",
     "@fortawesome/fontawesome-free": "6.1.1",
-    "@popperjs/core": "^2.11.6",
+    "@popperjs/core": "^2.11.8",
     "animate.css": "4.1.1",
     "apexcharts": "3.35.0",
     "axios": "1.4.0",
@@ -15,6 +14,7 @@
     "bootstrap-icons": "^1.5.0",
     "chart.js": "4.3.0",
     "clsx": "1.1.1",
+    "cra-template": "1.2.0",
     "demo6": "file:",
     "firebase": "^11.1.0",
     "formik": "2.2.9",
@@ -34,7 +34,7 @@
     "react-intl": "6.4.4",
     "react-query": "3.38.0",
     "react-router-dom": "6.3.0",
-    "react-scripts": "5.0.0",
+    "react-scripts": "5.0.1",
     "react-table": "^7.7.0",
     "react-toastify": "^11.0.2",
     "react-topbar-progress-indicator": "4.1.1",
@@ -51,7 +51,7 @@
     "@types/node": "20.3.1",
     "@types/prismjs": "1.26.0",
     "@types/qs": "6.9.7",
-    "@types/react": "18.0.6",
+    "@types/react": "^18.0.6",
     "@types/react-copy-to-clipboard": "5.0.2",
     "@types/react-dom": "18.0.2",
     "@types/react-table": "^7.7.9",
@@ -71,10 +71,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "lint": "prettier --check .",
-    "format": "prettier --write .",
-    "rtl": "webpack --config=rtl.config.js"
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": [
@@ -93,8 +90,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "eslintIgnore": [
-    "dist/*"
-  ]
+  }
 }

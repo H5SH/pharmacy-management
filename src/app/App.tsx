@@ -24,7 +24,7 @@ const App = () => {
             </AuthInit>
           </ThemeModeProvider>
         </LayoutProvider>
-      </I18nProvider>
+      </I18nProvider>     
     </Suspense>
   )
 }

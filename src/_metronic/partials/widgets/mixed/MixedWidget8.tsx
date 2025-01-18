@@ -5,22 +5,25 @@ import {KTIcon, toAbsoluteUrl} from '../../../helpers'
 import {getCSSVariableValue} from '../../../assets/ts/_utils'
 import {Dropdown1} from '../../content/dropdown/Dropdown1'
 import {useThemeMode} from '../../layout/theme-mode/ThemeModeProvider'
+import { PredictionModel } from '../../../../utils/model'
 
 type Props = {
   className: string
   chartColor: string
   chartHeight: string
+  predictionData: PredictionModel
 }
 
-const MixedWidget8: React.FC<Props> = ({className, chartColor, chartHeight}) => {
+const MixedWidget8: React.FC<Props> = ({className, chartColor, chartHeight, predictionData}) => {
   const chartRef = useRef<HTMLDivElement | null>(null)
   const {mode} = useThemeMode()
+
   const refreshChart = () => {
     if (!chartRef.current) {
       return
     }
 
-    const chart1 = new ApexCharts(chartRef.current, chart1Options(chartColor, chartHeight))
+    const chart1 = new ApexCharts(chartRef.current, chart1Options(chartColor, chartHeight, predictionData))
     if (chart1) {
       chart1.render()
     }
@@ -29,6 +32,7 @@ const MixedWidget8: React.FC<Props> = ({className, chartColor, chartHeight}) => 
   }
 
   useEffect(() => {
+    console.log('useEffect', predictionData)
     const chart1 = refreshChart()
 
     return () => {
@@ -37,7 +41,7 @@ const MixedWidget8: React.FC<Props> = ({className, chartColor, chartHeight}) => 
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chartRef, mode])
+  }, [chartRef, mode, predictionData])
 
   return (
     <div className={`card ${className}`}>
@@ -181,7 +185,7 @@ const MixedWidget8: React.FC<Props> = ({className, chartColor, chartHeight}) => 
   )
 }
 
-const chart1Options = (chartColor: string, chartHeight: string): ApexOptions => {
+const chart1Options = (chartColor: string, chartHeight: string, preddictionData: PredictionModel): ApexOptions => {
   const labelColor = getCSSVariableValue('--bs-gray-800')
   const strokeColor = getCSSVariableValue('--bs-gray-300')
   const baseColor = getCSSVariableValue('--bs-' + chartColor) as string
@@ -191,7 +195,7 @@ const chart1Options = (chartColor: string, chartHeight: string): ApexOptions => 
     series: [
       {
         name: 'Net Profit',
-        data: [30, 30, 60, 25, 25, 40],
+        data: preddictionData?.yhat || [],
       },
     ],
     chart: {
@@ -240,7 +244,7 @@ const chart1Options = (chartColor: string, chartHeight: string): ApexOptions => 
       colors: [baseColor],
     },
     xaxis: {
-      categories: ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+      categories: preddictionData?.dates || [],
       axisBorder: {
         show: false,
       },

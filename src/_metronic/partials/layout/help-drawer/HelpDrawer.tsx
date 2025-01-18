@@ -1,7 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import { Link } from 'react-router-dom'
-import { KTIcon } from '../../../helpers'
+import React from 'react'
+import {Link} from 'react-router-dom'
+import {KTIcon} from '../../../helpers'
 
 const HelpDrawer = () => {
   return (
@@ -158,7 +159,7 @@ const HelpDrawer = () => {
                     to='/builder'
                     className='text-dark text-hover-primary fw-bolder fs-6 fs-lg-4 mb-1'
                   >
-                 Layout Builder 
+                    Layout Builder
                   </Link>
                   {/* end::Title */}
                   {/* begin::Description */}
@@ -214,5 +215,4 @@ const HelpDrawer = () => {
   )
 }
 
-export { HelpDrawer }
-
+export {HelpDrawer}

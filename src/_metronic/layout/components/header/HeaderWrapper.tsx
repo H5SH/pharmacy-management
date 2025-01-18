@@ -1,10 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import clsx from 'clsx'
-import { Link } from 'react-router-dom'
-import { KTIcon, toAbsoluteUrl } from '../../../helpers'
-import { useLayout } from '../../core'
-import { DefaultTitle } from './page-title/DefaultTitle'
-import { Topbar } from './Topbar'
+import {Link} from 'react-router-dom'
+import {KTIcon, toAbsoluteUrl} from '../../../helpers'
+import {useLayout} from '../../core'
+import {Header} from './Header'
+import {DefaultTitle} from './page-title/DefaultTitle'
+import {Topbar} from './Topbar'
 
 export function HeaderWrapper() {
   const {config, classes, attributes} = useLayout()
