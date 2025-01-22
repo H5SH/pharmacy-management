@@ -7,6 +7,8 @@ export interface Medicine {
     description: string
     customFields: Array<{ key: string; value: string }>
   }
+
+  export enum UserRole{PHARMACY_ADMIN='pharmacy_admin', BRANCH_MANAGER="branch_manager"}  
   
   export interface Manufacturer {
     id: string

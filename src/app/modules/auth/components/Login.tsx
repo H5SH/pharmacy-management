@@ -8,7 +8,8 @@ import {useFormik} from 'formik'
 import {toAbsoluteUrl} from '../../../../_metronic/helpers'
 import {useAuth} from '../core/Auth'
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
-import { auth } from '../../../../firebase/config'
+import { auth, firestore } from '../../../../firebase/config'
+import { addDoc, collection } from 'firebase/firestore'
 
 const loginSchema = Yup.object().shape({
   email: Yup.string()

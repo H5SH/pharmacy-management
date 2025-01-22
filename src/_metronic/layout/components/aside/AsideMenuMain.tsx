@@ -3,23 +3,18 @@ import { useIntl } from 'react-intl'
 import { AsideMenuItemWithSubMain } from './AsideMenuItemWithSubMain'
 import { AsideMenuItemWithSub } from './AsideMenuItemWithSub'
 import { AsideMenuItem } from './AsideMenuItem'
+import { useAuth } from '../../../../app/modules/auth'
+import { UserRole } from '../../../../utils/model'
 
 export function AsideMenuMain() {
   const intl = useIntl()
+  const { currentUser } = useAuth()
   return (
     <>
       <AsideMenuItem
         to='/dashboard'
         title='Home'
         fontIcon='bi-house fs-2'
-        bsTitle={intl.formatMessage({ id: 'MENU.DASHBOARD' })}
-        className='py-2'
-      />
-
-    <AsideMenuItem
-        to='/stats'
-        title='Stats'
-        fontIcon='bi bi-speedometer2 fs-2'
         bsTitle={intl.formatMessage({ id: 'MENU.DASHBOARD' })}
         className='py-2'
       />
@@ -47,21 +42,29 @@ export function AsideMenuMain() {
         bsTitle={intl.formatMessage({ id: 'MENU.DASHBOARD' })}
         className='py-2'
       />
-
-      {/* <AsideMenuItemWithSubMain
-        to='/builder'
-        title='Resources'
-        bsTitle='Resources'
-        fontIcon='bi-gear'
-      >
-        <AsideMenuItem to='/builder' title='Layout builder' fontIcon='bi-layers fs-3' />
-        <AsideMenuItem
-          to={process.env.REACT_APP_PREVIEW_DOCS_URL + '/docs/changelog'}
-          outside={true}
-          title={`Changelog ${process.env.REACT_APP_VERSION}`}
-          fontIcon='bi-card-text fs-3'
-        />
-      </AsideMenuItemWithSubMain> */}
+      
+      {currentUser?.role === UserRole.PHARMACY_ADMIN ? (
+        <>
+          <AsideMenuItem
+            to='/branch'
+            title='Branch'
+            fontIcon='bi-house fs-2'
+            bsTitle={intl.formatMessage({ id: 'MENU.DASHBOARD' })}
+            className='py-2'
+          />
+        </>
+      ) : (
+        <>
+          <AsideMenuItem
+            to='/stats'
+            title='Stats'
+            fontIcon='bi bi-speedometer2 fs-2'
+            bsTitle={intl.formatMessage({ id: 'MENU.DASHBOARD' })}
+            className='py-2'
+          />
+        </>
+      )
+      }
     </>
   )
 }

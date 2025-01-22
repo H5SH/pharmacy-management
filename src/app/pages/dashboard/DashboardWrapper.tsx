@@ -91,11 +91,11 @@ const DashboardPage = () => {
 
         {/* begin::Col */}
         <div className='col-xl-4'>
-          <MixedWidget8
+          {/* <MixedWidget8
             className='card-xl-stretch mb-5 mb-xl-8'
             chartColor='danger'
             chartHeight='150px'
-          />
+          /> */}
         </div>
         {/* end::Col */}
       </div>

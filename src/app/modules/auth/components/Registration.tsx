@@ -10,7 +10,9 @@ import { toAbsoluteUrl } from '../../../../_metronic/helpers'
 import { PasswordMeterComponent } from '../../../../_metronic/assets/ts/components'
 import { useAuth } from '../core/Auth'
 import { createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithPopup, sendEmailVerification } from 'firebase/auth'
-import { auth } from '../../../../firebase/config'
+import { auth, firestore } from '../../../../firebase/config'
+import { UserRole } from '../../../../utils/model'
+import { addDoc, collection, doc, setDoc } from 'firebase/firestore'
 
 const initialValues = {
   firstname: '',
@@ -61,9 +63,12 @@ export function Registration() {
         const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password)
         const user = userCredential.user
 
-        await updateProfile(user, {
+        updateProfile(user, {
           displayName: `${values.firstname} ${values.lastname}`,
         })
+
+        setDoc(doc(firestore, 'users', user.uid), {role: UserRole.PHARMACY_ADMIN})
+        setDoc(doc(firestore, 'pharmacy', user.uid), {admin: doc(firestore, 'users', user.uid), createdAt: new Date().toISOString()})
 
         sendEmailVerification(user)
 

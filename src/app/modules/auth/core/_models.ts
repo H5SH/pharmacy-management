@@ -1,3 +1,5 @@
+import { UserRole } from "../../../../utils/model"
+
 export interface AuthModel {
   api_token: string
   refreshToken?: string
@@ -54,7 +56,7 @@ export interface UserModel {
   occupation?: string
   companyName?: string
   phone?: string
-  roles?: Array<number>
+  role?: UserRole.BRANCH_MANAGER | UserRole.PHARMACY_ADMIN
   pic?: string
   language?: 'en' | 'de' | 'es' | 'fr' | 'ja' | 'zh' | 'ru'
   timeZone?: string

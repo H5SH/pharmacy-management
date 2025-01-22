@@ -7,6 +7,8 @@ import { firestore } from "../../../../firebase/config";
 import { useAppContext } from "../../../../utils/appContext";
 import { Toast } from "../../../../utils/utilities";
 import { useState } from "react";
+import { useAuth } from "../../../modules/auth";
+import { UserRole } from "../../../../utils/model";
 
 interface MedicinesModal {
   setShowDrawer: any
@@ -20,6 +22,46 @@ export default function MedicinesForm({ setShowDrawer, showDrawer, manufacturers
 
   const { refresh, setRefresh } = useAppContext()
   const [btnLoading, setBtnLoading] = useState(false)
+  const {currentUser} = useAuth()
+
+
+  async function handleBranchSubmit(values, resetForm: ()=> void) {
+    try {
+      if (medicine?.id) {
+        await updateDoc(doc(firestore, "pharmacy", currentUser.uid, 'medicines', medicine.id), medicineData)
+        Toast('success', 'Medicine updated successfully')
+      } else {
+        await addDoc(collection(firestore, "pharmacy", currentUser.uid, 'medicines'), medicineData)
+        Toast('success', 'Medicine added successfully')
+      }
+      resetForm()
+      setShowDrawer(false)
+      setMedicine(null)
+      setRefresh(!refresh)
+    } catch (error) {
+      console.error('Error saving medicine:', error)
+      Toast('error', 'Error saving medicine')
+    }
+  }
+
+  async function handlePharmacySubmit(values, resetForm: ()=> void) {
+    try {
+      if (medicine?.id) {
+        await updateDoc(doc(firestore, "pharmacy", currentUser.uid, "branches", 'medicines', medicine.id), medicineData)
+        Toast('success', 'Medicine updated successfully')
+      } else {
+        await addDoc(collection(firestore, 'medicines'), medicineData)
+        Toast('success', 'Medicine added successfully')
+      }
+      resetForm()
+      setShowDrawer(false)
+      setMedicine(null)
+      setRefresh(!refresh)
+    } catch (error) {
+      console.error('Error saving medicine:', error)
+      Toast('error', 'Error saving medicine')
+    }
+  }
 
   const formik = useFormik({
     initialValues: medicine || {
@@ -65,38 +107,21 @@ export default function MedicinesForm({ setShowDrawer, showDrawer, manufacturers
       ),
     }),
     onSubmit: async (values, { resetForm }) => {
+      const medicineData = {
+        ...values,
+        ...(values.medicineType === 'liquid' && { liquidMl: values.liquidMl }),
+        ...(values.medicineType === 'tablets' && { tabletsPerBox: values.tabletsPerBox }),
+        ...(values.medicineType === 'powder' && { powderWeight: values.powderWeight }),
+      }
       setBtnLoading(true)
-      try {
-        const medicineData = {
-          name: values.name,
-          manufacturerId: values.manufacturerId,
-          chemicals: values.chemicals,
-          description: values.description,
-          customFields: values.customFields,
-          medicineType: values.medicineType,
-          quantity: values.quantity,
-          pricePerUnit: values.pricePerUnit,
-          ...(values.medicineType === 'liquid' && { liquidMl: values.liquidMl }),
-          ...(values.medicineType === 'tablets' && { tabletsPerBox: values.tabletsPerBox }),
-          ...(values.medicineType === 'powder' && { powderWeight: values.powderWeight }),
-        }
-
-        if (medicine?.id) {
-          await updateDoc(doc(firestore, 'medicines', medicine.id), medicineData)
-          Toast('success', 'Medicine updated successfully')
-        } else {
-          await addDoc(collection(firestore, 'medicines'), medicineData)
-          Toast('success', 'Medicine added successfully')
-        }
-        resetForm()
-        setShowDrawer(false)
-        setMedicine(null)
-        setRefresh(!refresh)
-      } catch (error) {
-        console.error('Error saving medicine:', error)
-        Toast('error', 'Error saving medicine')
+      if(currentUser.role === UserRole.PHARMACY_ADMIN){
+        await handlePharmacySubmit(medicineData, resetForm)
+      }else{
+        await handleBranchSubmit(medicineData, resetForm)
       }
       setBtnLoading(false)
+
+
     },
   })
 

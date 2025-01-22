@@ -12,7 +12,8 @@ import {
 import {LayoutSplashScreen} from '../../../../_metronic/layout/core'
 import {UserModel} from './_models'
 import {WithChildren} from '../../../../_metronic/helpers'
-import { auth } from '../../../../firebase/config'
+import { auth, firestore } from '../../../../firebase/config'
+import { doc, getDoc } from 'firebase/firestore'
 
 type AuthContextProps = {
   currentUser: UserModel | undefined
@@ -54,9 +55,10 @@ const AuthInit: FC<WithChildren> = ({children}) => {
   // We should request user by authToken (IN OUR EXAMPLE IT'S API_TOKEN) before rendering the application
   useEffect(() => {
     setShowSplashScreen(true)
-    auth.onAuthStateChanged((user)=>{
-      if(user?.emailVerified){
-        setCurrentUser({...user})
+    auth.onAuthStateChanged(async (user)=>{
+      const _user = await getDoc(doc(firestore, 'users', user.uid))
+      if(user?.emailVerified && _user.exists()){
+        setCurrentUser({...user, ..._user.data()})
       }
     })
     setShowSplashScreen(false)
