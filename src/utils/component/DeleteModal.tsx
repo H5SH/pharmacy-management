@@ -1,11 +1,12 @@
 import { Modal } from "react-bootstrap";
 import { Manufacturer, Medicine } from "../model";
+import Branch from "../../app/pages/branch/Branch";
 
 
 interface DeleteProps {
     showDeleteModal: any
     setShowDeleteModal: any
-    item: Medicine | Manufacturer
+    item: Medicine | Manufacturer | Branch
     handleDelete: any
 }
 
