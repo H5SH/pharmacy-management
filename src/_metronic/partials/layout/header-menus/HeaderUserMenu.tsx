@@ -1,12 +1,18 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import {FC} from 'react'
-import {Link} from 'react-router-dom'
+import {Link, useNavigate} from 'react-router-dom'
 import {useAuth} from '../../../../app/modules/auth'
 import {Languages} from './Languages'
 import {toAbsoluteUrl} from '../../../helpers'
+import { UserRole } from '../../../../utils/model'
 
 const HeaderUserMenu: FC = () => {
-  const {currentUser, logout} = useAuth()
+  const {currentUser, logout, setCurrentUser} = useAuth()
+  const navigate = useNavigate()
+
+  function goAdmin(){
+    return currentUser?.role === UserRole.BRANCH_MANAGER && currentUser?.admin?.role === UserRole.PHARMACY_ADMIN
+  }
   return (
     <div
       className='menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg menu-state-primary fw-bold py-4 fs-6 w-275px'
@@ -124,8 +130,11 @@ const HeaderUserMenu: FC = () => {
       </div>
 
       <div className='menu-item px-5'>
-        <a onClick={logout} className='menu-link px-5'>
-          Sign Out
+        <a onClick={!goAdmin() ? ()=> logout() :()=> {
+          setCurrentUser({...currentUser.admin})
+          navigate('/')
+        }} className='menu-link px-5'>
+          {goAdmin() ? 'Go Admin' : 'Sign Out'}
         </a>
       </div>
     </div>

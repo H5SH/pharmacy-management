@@ -9,6 +9,8 @@ import { useAuth } from "../../modules/auth";
 import { useAppContext } from "../../../utils/appContext";
 import { DeleteModal } from "../../../utils/component/DeleteModal";
 import { Toast } from "../../../utils/utilities";
+import { UserRole } from "../../../utils/model";
+import { useNavigate } from "react-router-dom";
 
 interface Branch {
   uid: string;
@@ -22,8 +24,9 @@ const Branch = () => {
   const [showDrawer, setShowDrawer] = useState(false);
   const [branch, setBranch] = useState<Branch | null>()
   const [deleteBranch, setDeleteBranch] = useState<Branch | null>(null)
+  const navigate = useNavigate()
 
-  const { currentUser } = useAuth()
+  const { currentUser, setCurrentUser } = useAuth()
   const { refresh, setRefresh } = useAppContext()
 
   const fetchBranches = async () => {
@@ -86,6 +89,15 @@ const Branch = () => {
               <td>{branch.city}</td>
               <td>{branch.state}</td>
               <td className='text-end'>
+              <button
+                  className='btn btn-sm btn-light-primary me-2'
+                  onClick={() => {
+                    setCurrentUser({...currentUser, admin: currentUser, role: UserRole.BRANCH_MANAGER})
+                    navigate('/dashboard')
+                  }}
+                >
+                  <i className="bi bi-eye fs-1"></i>
+                </button>
                 <button
                   className='btn btn-sm btn-light-primary me-2'
                   onClick={() => {

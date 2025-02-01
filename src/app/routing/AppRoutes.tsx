@@ -34,7 +34,7 @@ const AppRoutes: FC = () => {
           <Route path='logout' element={<Logout />} />
           {currentUser ? (
             <>
-              {[UserRole.PHARMACY_ADMIN, UserRole.BRANCH_MANAGER].includes(currentUser.role) ? (
+              {UserRole.PHARMACY_ADMIN === currentUser.role ? (
                 <>
                   <Route path='/*' element={<AdminRoutes />} />
                   <Route index element={<Navigate to='/dashboard' />} />
