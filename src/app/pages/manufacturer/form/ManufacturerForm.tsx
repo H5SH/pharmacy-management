@@ -7,6 +7,7 @@ import { useAppContext } from "../../../../utils/appContext"
 import { Offcanvas } from "react-bootstrap"
 import { Toast } from "../../../../utils/utilities"
 import { useState } from "react"
+import { useAuth } from "../../../modules/auth"
 
 interface ManufacturerModal {
     setShowDrawer: any
@@ -17,11 +18,12 @@ interface ManufacturerModal {
 
 export default function ManufacturerForm({setShowDrawer, setSelectedManufacturer, selectedManufacturer, showDrawer}: ManufacturerModal){
     const {refresh, setRefresh} = useAppContext()
+    const { currentUser } = useAuth()
     const [btnLoading, setBtnLoading] = useState(false)
 
     const checkManufacturerExists = async (name: string) => {
       const q = query(
-        collection(db, 'manufacturers'),
+        collection(db, 'pharmacy', currentUser.uid, 'manufacturers'),
         where('name', '==', name)
       )
       const querySnapshot = await getDocs(q)
@@ -47,14 +49,12 @@ export default function ManufacturerForm({setShowDrawer, setSelectedManufacturer
             }
 
             if (selectedManufacturer) {
-              await updateDoc(doc(db, 'manufacturers', selectedManufacturer.id), {
+              await updateDoc(doc(db, 'pharmacy', currentUser.uid, 'manufacturers', selectedManufacturer.id), {
                 name: values.name,
               })
               Toast('success','Updated Successfully')
             } else {
-              console.log('add')
-              console.log(auth, 'auth')
-              await addDoc(collection(db, 'manufacturers'), {
+              await addDoc(collection(db, 'pharmacy', currentUser.uid, 'manufacturers'), {
                 name: values.name,
               })
               Toast('success','Added Successfully')

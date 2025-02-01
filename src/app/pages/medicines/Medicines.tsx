@@ -2,27 +2,30 @@
 import React, { useState, useEffect } from 'react'
 import { Card, Modal, Offcanvas } from 'react-bootstrap'
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore'
-import {firestore} from '../../../firebase/config'
+import { firestore } from '../../../firebase/config'
 import { useFormik, FieldArray, FormikProvider } from 'formik'
 import * as Yup from 'yup'
-import { Manufacturer, Medicine } from '../../../utils/model'
+import { Manufacturer, Medicine, UserRole } from '../../../utils/model'
 import MedicinesForm from './form/MedicinesForm'
 import { useAppContext } from '../../../utils/appContext'
 import { DeleteModal } from '../../../utils/component/DeleteModal'
 import { Toast } from '../../../utils/utilities'
+import { useAuth } from '../../modules/auth'
+import { getPharmacyId } from '../../../utils/functions'
 
 
 export default function Medicines() {
 
-  const {refresh, setRefresh} = useAppContext()
+  const { refresh, setRefresh } = useAppContext()
   const [medicines, setMedicines] = useState<Medicine[]>([])
   const [manufacturers, setManufacturers] = useState<Manufacturer[]>([])
   const [showDrawer, setShowDrawer] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [selectedMedicine, setSelectedMedicine] = useState<Medicine | null>(null)
+  const { currentUser } = useAuth()
 
   const fetchManufacturers = async () => {
-    const querySnapshot = await getDocs(collection(firestore, 'manufacturers'))
+    const querySnapshot = await getDocs(collection(firestore, 'pharmacy', getPharmacyId(currentUser), 'manufacturers'))
     const manufacturerList = querySnapshot.docs.map((doc) => ({
       id: doc.id,
       name: doc.data().name,
@@ -31,7 +34,7 @@ export default function Medicines() {
   }
 
   const fetchMedicines = async () => {
-    const querySnapshot = await getDocs(collection(firestore, 'medicines'))
+    const querySnapshot = await getDocs(collection(firestore, 'pharmacy', getPharmacyId(currentUser), 'medicines'))
     const medicineList = await Promise.all(
       querySnapshot.docs.map(async (doc) => {
         const data = doc.data()
@@ -50,16 +53,16 @@ export default function Medicines() {
     setMedicines(medicineList)
   }
 
-  
+
   const handleEdit = (medicine: Medicine) => {
     setSelectedMedicine(medicine)
     setShowDrawer(true)
   }
-  
+
   const handleDelete = async () => {
     if (selectedMedicine) {
       try {
-        await deleteDoc(doc(firestore, 'medicines', selectedMedicine.id))
+        await deleteDoc(doc(firestore, 'pharmacy', currentUser.uid, 'medicines', selectedMedicine.id))
         Toast('success', 'Deleted Successfuly')
         setShowDeleteModal(false)
         setSelectedMedicine(null)
@@ -70,7 +73,7 @@ export default function Medicines() {
       }
     }
   }
-  
+
   const handleAddNew = () => {
     setSelectedMedicine(null)
     setShowDrawer(true)
@@ -93,11 +96,13 @@ export default function Medicines() {
           <h3 className='card-title align-items-start flex-column'>
             <span className='card-label fw-bold fs-3 mb-1'>Medicines</span>
           </h3>
-          <div className='card-toolbar'>
-            <button className='btn btn-primary' onClick={handleAddNew}>
-              Add New Medicine
-            </button>
-          </div>
+          {currentUser.role === UserRole.PHARMACY_ADMIN && (
+            <div className='card-toolbar'>
+              <button className='btn btn-primary' onClick={handleAddNew}>
+                Add New Medicine
+              </button>
+            </div>
+          )}
         </Card.Header>
         <Card.Body>
           <div className='table-responsive'>
@@ -108,7 +113,9 @@ export default function Medicines() {
                   <th>Manufacturer</th>
                   <th>Chemicals</th>
                   <th>Description</th>
-                  <th className='text-end'>Actions</th>
+                  {currentUser.role === UserRole.PHARMACY_ADMIN && (
+                    <th className='text-end'>Actions</th>
+                  )}
                 </tr>
               </thead>
               <tbody className='text-gray-600 fw-semibold'>
@@ -118,23 +125,25 @@ export default function Medicines() {
                     <td>{medicine.manufacturerName}</td>
                     <td>{medicine.chemicals}</td>
                     <td>{medicine.description}</td>
-                    <td className='text-end'>
-                      <button
-                        className='btn btn-sm btn-light-primary me-2'
-                        onClick={() => handleEdit(medicine)}
-                      >
-                            <i className="bi bi-pencil fs-1"></i>
-                      </button>
-                      <button
-                        className='btn btn-sm btn-light-danger'
-                        onClick={() => {
-                          setSelectedMedicine(medicine)
-                          setShowDeleteModal(true)
-                        }}
-                      >
-                            <i class="bi bi-trash fs-1"></i>
-                      </button>
-                    </td>
+                    {currentUser.role === UserRole.PHARMACY_ADMIN && (
+                      <td className='text-end'>
+                        <button
+                          className='btn btn-sm btn-light-primary me-2'
+                          onClick={() => handleEdit(medicine)}
+                        >
+                          <i className="bi bi-pencil fs-1"></i>
+                        </button>
+                        <button
+                          className='btn btn-sm btn-light-danger'
+                          onClick={() => {
+                            setSelectedMedicine(medicine)
+                            setShowDeleteModal(true)
+                          }}
+                        >
+                          <i class="bi bi-trash fs-1"></i>
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>
@@ -143,9 +152,9 @@ export default function Medicines() {
         </Card.Body>
       </Card>
 
-      <MedicinesForm setShowDrawer={setShowDrawer} showDrawer={showDrawer} manufacturers={manufacturers} medicine={selectedMedicine} setMedicine={setSelectedMedicine}/>
+      <MedicinesForm setShowDrawer={setShowDrawer} showDrawer={showDrawer} manufacturers={manufacturers} medicine={selectedMedicine} setMedicine={setSelectedMedicine} />
 
-      <DeleteModal showDeleteModal={showDeleteModal} setShowDeleteModal={setShowDeleteModal} item={selectedMedicine} handleDelete={handleDelete}/>
+      <DeleteModal showDeleteModal={showDeleteModal} setShowDeleteModal={setShowDeleteModal} item={selectedMedicine} handleDelete={handleDelete} />
     </div>
   )
 }

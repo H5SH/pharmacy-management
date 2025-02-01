@@ -1,3 +1,4 @@
+import { DocumentReference } from "firebase/firestore"
 import { UserRole } from "../../../../utils/model"
 
 export interface AuthModel {
@@ -50,12 +51,17 @@ export interface UserModel {
   uid: string
   username?: string
   password?: string | undefined
+  branchId?: string
+  branch?: DocumentReference
+  pharmacyId?: string
+  pharmacy?: DocumentReference
   email: string
   first_name?: string
   last_name?: string
   fullname?: string
   occupation?: string
   companyName?: string
+
   phone?: string
   role?: UserRole.BRANCH_MANAGER | UserRole.PHARMACY_ADMIN
   pic?: string

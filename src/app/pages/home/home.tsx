@@ -4,6 +4,8 @@ import { collection, getDocs, query, where, or } from 'firebase/firestore'
 import { firestore } from '../../../firebase/config'
 import { Toast } from '../../../utils/utilities'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useAuth } from '../../modules/auth'
+import { getPharmacyId } from '../../../utils/functions'
 
 interface Medicine {
   id: string
@@ -37,6 +39,7 @@ export default function Home() {
   const [selectedUnit, setSelectedUnit] = useState<'piece' | 'box'>('piece')
   const [cartAnimation, setCartAnimation] = useState(false)
   const searchTimeout = useRef<NodeJS.Timeout>()
+  const { currentUser } = useAuth()
 
   const searchMedicines = async (query: string) => {
     if (!query.trim()) {
@@ -46,7 +49,7 @@ export default function Home() {
 
     try {
       const q = query.toLowerCase()
-      const medicinesRef = collection(firestore, 'medicines')
+      const medicinesRef = collection(firestore, 'pharmacy', getPharmacyId(currentUser), 'medicines')
       const querySnapshot = await getDocs(medicinesRef)
       
       const results = querySnapshot.docs

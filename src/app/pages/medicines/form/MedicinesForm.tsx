@@ -25,32 +25,13 @@ export default function MedicinesForm({ setShowDrawer, showDrawer, manufacturers
   const {currentUser} = useAuth()
 
 
-  async function handleBranchSubmit(values, resetForm: ()=> void) {
-    try {
-      if (medicine?.id) {
-        await updateDoc(doc(firestore, "pharmacy", currentUser.uid, 'medicines', medicine.id), medicineData)
-        Toast('success', 'Medicine updated successfully')
-      } else {
-        await addDoc(collection(firestore, "pharmacy", currentUser.uid, 'medicines'), medicineData)
-        Toast('success', 'Medicine added successfully')
-      }
-      resetForm()
-      setShowDrawer(false)
-      setMedicine(null)
-      setRefresh(!refresh)
-    } catch (error) {
-      console.error('Error saving medicine:', error)
-      Toast('error', 'Error saving medicine')
-    }
-  }
-
   async function handlePharmacySubmit(values, resetForm: ()=> void) {
     try {
       if (medicine?.id) {
-        await updateDoc(doc(firestore, "pharmacy", currentUser.uid, "branches", 'medicines', medicine.id), medicineData)
+        await updateDoc(doc(firestore, "pharmacy", currentUser.uid, 'medicines', medicine.id), values)
         Toast('success', 'Medicine updated successfully')
       } else {
-        await addDoc(collection(firestore, 'medicines'), medicineData)
+        await addDoc(collection(firestore, "pharmacy", currentUser.uid, 'medicines'), values)
         Toast('success', 'Medicine added successfully')
       }
       resetForm()
@@ -114,11 +95,9 @@ export default function MedicinesForm({ setShowDrawer, showDrawer, manufacturers
         ...(values.medicineType === 'powder' && { powderWeight: values.powderWeight }),
       }
       setBtnLoading(true)
-      if(currentUser.role === UserRole.PHARMACY_ADMIN){
-        await handlePharmacySubmit(medicineData, resetForm)
-      }else{
-        await handleBranchSubmit(medicineData, resetForm)
-      }
+
+      await handlePharmacySubmit(medicineData, resetForm)
+
       setBtnLoading(false)
 
 

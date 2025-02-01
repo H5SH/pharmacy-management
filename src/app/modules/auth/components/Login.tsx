@@ -9,7 +9,7 @@ import {toAbsoluteUrl} from '../../../../_metronic/helpers'
 import {useAuth} from '../core/Auth'
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
 import { auth, firestore } from '../../../../firebase/config'
-import { addDoc, collection } from 'firebase/firestore'
+import { addDoc, collection, doc, getDoc } from 'firebase/firestore'
 
 const loginSchema = Yup.object().shape({
   email: Yup.string()
@@ -47,8 +47,6 @@ export function Login() {
       try {
         const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password)
         const user = userCredential.user
-
-        console.log(user, 'userlogin')
         
         if(!user.emailVerified){
           setStatus('Email Not Varified')
@@ -57,9 +55,11 @@ export function Login() {
           auth.signOut()
           return
         }
+
+        const userData = await getDoc(doc(firestore, 'users', user.uid))
       
         // Set current user
-        setCurrentUser({...user})
+        setCurrentUser({...user, ...userData.data()})
         
         navigate('/')
       } catch (error) {

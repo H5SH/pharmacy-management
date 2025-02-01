@@ -83,10 +83,14 @@ const BranchForm = ({
                 setDoc(doc(db, "users", userCredential.user.uid), {
                   email: values.managerEmail,
                   role: UserRole.BRANCH_MANAGER,
-                  branchName: values.name
+                  branchId: values.name,
+                  branch: doc(firestore, 'pharmacy', currentUser.uid!, "branches", values.name),
+                  pharmacyId: currentUser.uid!,
+                  pharmacy: doc(firestore, 'pharmacy', currentUser.uid!)
                 });
                 const { managerPassword, managerEmail, ...branchData } = values;
-                await setDoc(doc(firestore, 'pharmacy', currentUser.uid!, "branches", values.name), {...branchData, manager: doc(firestore, 'users', userCredential.user.uid)})
+
+                await setDoc(doc(firestore, 'pharmacy', currentUser.uid!, "branches", values.name), {...branchData, pharmacyId: currentUser.uid!, pharmacy: doc(firestore, 'pharmacy', currentUser.uid!), manager: doc(firestore, 'users', userCredential.user.uid)})
               }else{
                 await setDoc(doc(firestore, 'pharmacy', currentUser.uid!, "branches", values.name), values)
               }

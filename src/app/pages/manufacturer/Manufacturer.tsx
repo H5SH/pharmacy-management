@@ -5,22 +5,26 @@ import { firestore as db } from '../../../firebase/config'
 import { useAppContext } from '../../../utils/appContext'
 import ManufacturerForm from './form/ManufacturerForm'
 import { DeleteModal } from '../../../utils/component/DeleteModal'
-import { Manufacturer as ManufacturerModal } from '../../../utils/model'
+import { Manufacturer as ManufacturerModal, UserRole } from '../../../utils/model'
 import { Toast } from '../../../utils/utilities'
+import { useAuth } from '../../modules/auth'
+import { getPharmacyId } from '../../../utils/functions'
 
 
 
 export default function Manufacturer() {
 
   const { refresh } = useAppContext()
+  const { currentUser } = useAuth()
   const [manufacturers, setManufacturers] = useState<ManufacturerModal[]>([])
   const [showDrawer, setShowDrawer] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [selectedManufacturer, setSelectedManufacturer] = useState<ManufacturerModal | null>(null)
 
+
   const fetchManufacturers = async () => {
-    const querySnapshot = await getDocs(collection(db, 'manufacturers'))
-    const manufacturerList = querySnapshot.docs.map((doc) => ({
+    const querySnapshot = await getDocs(collection(db, 'pharmacy', getPharmacyId(currentUser), 'manufacturers'))
+    const manufacturerList = querySnapshot.docs?.map((doc) => ({
       id: doc.id,
       name: doc.data().name,
     }))
@@ -36,7 +40,7 @@ export default function Manufacturer() {
   const handleDelete = async () => {
     if (selectedManufacturer) {
       try {
-        await deleteDoc(doc(db, 'manufacturers', selectedManufacturer.id))
+        await deleteDoc(doc(db, 'pharmacy', currentUser.uid, 'manufacturers', selectedManufacturer.id))
         Toast('success', 'Deleted Successfully')
         setShowDeleteModal(false)
         setSelectedManufacturer(null)
@@ -64,11 +68,13 @@ export default function Manufacturer() {
           <h3 className='card-title align-items-start flex-column'>
             <span className='card-label fw-bold fs-3 mb-1'>Manufacturers</span>
           </h3>
-          <div className='card-toolbar'>
-            <button className='btn btn-primary' onClick={handleAddNew}>
-              Add New Manufacturer
-            </button>
-          </div>
+          {currentUser.role === UserRole.PHARMACY_ADMIN && (
+            <div className='card-toolbar'>
+              <button className='btn btn-primary' onClick={handleAddNew}>
+                Add New Manufacturer
+              </button>
+            </div>
+          )}
         </Card.Header>
         <Card.Body>
           <div className='table-responsive'>
@@ -76,16 +82,19 @@ export default function Manufacturer() {
               <thead>
                 <tr className='text-start text-muted fw-bold fs-7 text-uppercase gs-0'>
                   <th>Name</th>
-                  <th className='text-end'>Actions</th>
+                  {currentUser.role === UserRole.PHARMACY_ADMIN && (
+                    <th className='text-end'>Actions</th>
+                  )}
                 </tr>
               </thead>
               <tbody className='text-gray-600 fw-semibold'>
                 {manufacturers.map((manufacturer) => (
                   <tr key={manufacturer.id}>
                     <td>{manufacturer.name}</td>
-                    <td className='text-end'>
-                      <button
-                        className='btn btn-sm btn-light-primary me-2'
+                    {currentUser.role === UserRole.PHARMACY_ADMIN && (
+                      <td className='text-end'>
+                        <button
+                          className='btn btn-sm btn-light-primary me-2'
                         onClick={() => handleEdit(manufacturer)}
                       >
                         <i className="bi bi-pencil fs-1"></i>
@@ -98,8 +107,9 @@ export default function Manufacturer() {
                         }}
                       >
                         <i className="bi bi-trash fs-1"></i>
-                      </button>
-                    </td>
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>
