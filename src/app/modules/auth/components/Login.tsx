@@ -47,12 +47,14 @@ export function Login() {
       try {
         const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password)
         const user = userCredential.user
+
+        console.log(user, 'userlogin')
         
         if(!user.emailVerified){
-          auth.signOut()
           setStatus('Email Not Varified')
           setSubmitting(false)
           setLoading(false)
+          auth.signOut()
           return
         }
       
@@ -64,8 +66,8 @@ export function Login() {
         console.error(error)
         setStatus('The login details are incorrect')
         setSubmitting(false)
-        setLoading(false)
       }
+      setLoading(false)
     },
   })
 
@@ -163,8 +165,9 @@ export function Login() {
       ) : (
         <div className='mb-10 bg-light-info p-8 rounded'>
           <div className='text-info'>
-            Use account <strong>admin@demo.com</strong> and password <strong>demo</strong> to
-            continue.
+            {/* Use account <strong>admin@demo.com</strong> and password <strong>demo</strong> to
+            continue. */}
+            {formik.status}
           </div>
         </div>
       )}

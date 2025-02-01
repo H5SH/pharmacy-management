@@ -48,7 +48,7 @@ export function AsideMenuMain() {
           <AsideMenuItem
             to='/branch'
             title='Branch'
-            fontIcon='bi-house fs-2'
+            fontIcon='bi-box-seam fs-2'
             bsTitle={intl.formatMessage({ id: 'MENU.DASHBOARD' })}
             className='py-2'
           />

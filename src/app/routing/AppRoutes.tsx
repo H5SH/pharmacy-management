@@ -24,7 +24,8 @@ const { PUBLIC_URL } = process.env
 
 const AppRoutes: FC = () => {
   const { currentUser } = useAuth()
-  console.log(currentUser, 'user')
+  console.log(currentUser, 'usercurrent')
+
   return (
     <BrowserRouter basename={PUBLIC_URL}>
       <Routes>
@@ -33,7 +34,7 @@ const AppRoutes: FC = () => {
           <Route path='logout' element={<Logout />} />
           {currentUser ? (
             <>
-              {currentUser.role === UserRole.PHARMACY_ADMIN ? (
+              {[UserRole.PHARMACY_ADMIN, UserRole.BRANCH_MANAGER].includes(currentUser.role) ? (
                 <>
                   <Route path='/*' element={<AdminRoutes />} />
                   <Route index element={<Navigate to='/dashboard' />} />

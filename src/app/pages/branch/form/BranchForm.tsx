@@ -2,11 +2,12 @@ import { Form, Button, Offcanvas } from "react-bootstrap";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { addDoc, collection, doc, getDocs, query, setDoc, where } from "firebase/firestore";
-import { firestore as db, firestore } from "../../../../firebase/config";
+import { auth, firestore as db, firestore } from "../../../../firebase/config";
 import { toast } from "react-toastify";
 import { useAppContext } from "../../../../utils/appContext";
 import { useAuth } from "../../../modules/auth";
-import Branch from "../Branch";
+import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
+import { UserRole } from "../../../../utils/model";
 
 interface BranchFormProps {
   showDrawer: boolean;
@@ -18,12 +19,16 @@ export interface BranchFormValues {
   name: string;
   city: string;
   state: string;
+  managerEmail?: string;
+  managerPassword?: string;
 }
 
 const defaultInitialValues: BranchFormValues = {
   name: "",
   city: "",
   state: "",
+  managerEmail: "",
+  managerPassword: "",
 };
 
 const validationSchema = Yup.object().shape({
@@ -64,7 +69,27 @@ const BranchForm = ({
           enableReinitialize
           onSubmit={async (values, { setSubmitting, resetForm }) => {
             try {
-              await setDoc(doc(firestore, 'pharmacy', currentUser.uid!, "branches", values.name), values)
+              if(!initialValues){
+                const userCredential = await createUserWithEmailAndPassword(
+                  auth,
+                  values.managerEmail,
+                  values.managerPassword!
+                );
+
+                // Send verification email
+                sendEmailVerification(userCredential.user);
+
+                // Create user document in Firestore
+                setDoc(doc(db, "users", userCredential.user.uid), {
+                  email: values.managerEmail,
+                  role: UserRole.BRANCH_MANAGER,
+                  branchName: values.name
+                });
+                const { managerPassword, managerEmail, ...branchData } = values;
+                await setDoc(doc(firestore, 'pharmacy', currentUser.uid!, "branches", values.name), {...branchData, manager: doc(firestore, 'users', userCredential.user.uid)})
+              }else{
+                await setDoc(doc(firestore, 'pharmacy', currentUser.uid!, "branches", values.name), values)
+              }
               resetForm();
               handleClose();
               setRefresh(!refresh)
@@ -133,6 +158,39 @@ const BranchForm = ({
                   {errors.state}
                 </Form.Control.Feedback>
               </Form.Group>
+
+              <Form.Group className="mb-3">
+                <Form.Label>Manager Email</Form.Label>
+                <Form.Control
+                  type="email"
+                  name="managerEmail"
+                  value={values.managerEmail}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  isInvalid={touched.managerEmail && !!errors.managerEmail}
+                  disabled={!!initialValues}
+                />
+                <Form.Control.Feedback type="invalid">
+                  {errors.managerEmail}
+                </Form.Control.Feedback>
+              </Form.Group>
+
+              {!initialValues && (
+                <Form.Group className="mb-3">
+                  <Form.Label>Manager Password</Form.Label>
+                  <Form.Control
+                    type="password"
+                    name="managerPassword"
+                    value={values.managerPassword}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    isInvalid={touched.managerPassword && !!errors.managerPassword}
+                  />
+                  <Form.Control.Feedback type="invalid">
+                    {errors.managerPassword}
+                  </Form.Control.Feedback>
+                </Form.Group>
+              )}
 
               <div className="d-grid">
                 <Button

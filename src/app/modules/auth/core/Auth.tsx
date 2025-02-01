@@ -54,15 +54,18 @@ const AuthInit: FC<WithChildren> = ({children}) => {
   const [showSplashScreen, setShowSplashScreen] = useState(true)
   // We should request user by authToken (IN OUR EXAMPLE IT'S API_TOKEN) before rendering the application
   useEffect(() => {
-    setShowSplashScreen(true)
     auth.onAuthStateChanged(async (user)=>{
-      const _user = await getDoc(doc(firestore, 'users', user.uid))
-      if(user?.emailVerified && _user.exists()){
-        setCurrentUser({...user, ..._user.data()})
+      console.log(user, 'user', auth.currentUser)
+      setShowSplashScreen(true)
+      if(user){
+        const _user = await getDoc(doc(firestore, 'users', auth.currentUser?.uid))
+        console.log(user?.emailVerified, _user.exists(), 'if')
+        if(user?.emailVerified && _user.exists()){
+          setCurrentUser({...user, ..._user.data()})
+        }
       }
+      setShowSplashScreen(false)
     })
-    setShowSplashScreen(false)
-    // eslint-disable-next-line
   }, [])
 
   return showSplashScreen ? <LayoutSplashScreen /> : <>{children}</>
