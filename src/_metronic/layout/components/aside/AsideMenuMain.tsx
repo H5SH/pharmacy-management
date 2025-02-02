@@ -20,14 +20,6 @@ export function AsideMenuMain() {
       />
 
       <AsideMenuItem
-        to='/pharmacist'
-        title='Pharmacist'
-        fontIcon='bi bi-chat'
-        bsTitle={intl.formatMessage({ id: 'MENU.DASHBOARD' })}
-        className='py-2'
-      />
-
-      <AsideMenuItem
         to='/manufacturer'
         title='Manufacturer'
         fontIcon='bi-file-text'
@@ -42,7 +34,7 @@ export function AsideMenuMain() {
         bsTitle={intl.formatMessage({ id: 'MENU.DASHBOARD' })}
         className='py-2'
       />
-      
+
       {currentUser?.role === UserRole.PHARMACY_ADMIN ? (
         <>
           <AsideMenuItem
@@ -56,9 +48,9 @@ export function AsideMenuMain() {
       ) : (
         <>
           <AsideMenuItem
-            to='/stats'
-            title='Stats'
-            fontIcon='bi bi-speedometer2 fs-2'
+            to='/pharmacist'
+            title='Pharmacist'
+            fontIcon='bi bi-chat'
             bsTitle={intl.formatMessage({ id: 'MENU.DASHBOARD' })}
             className='py-2'
           />

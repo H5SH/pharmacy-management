@@ -3,8 +3,9 @@ import { Container, Form, Button, Card } from 'react-bootstrap';
 import { collection, addDoc, query, where, orderBy, getDocs } from 'firebase/firestore';
 import { firestore as db } from '../../../firebase/config';
 import { useAuth } from '../../modules/auth';
-import { vertexAi, model } from '../../../config/vertexAi';
 import { toast } from 'react-toastify';
+import { getPharmacyId } from '../../../utils/functions';
+import { model } from '../../../firebase/config';
 
 interface ChatMessage {
   id?: string;
@@ -37,12 +38,11 @@ const Pharmacist = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [chatInstance, setChatInstance] = useState<any>(null);
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
   const { currentUser } = useAuth();
 
   useEffect(() => {
-    initializeChat();
+    console.log(model.safetySettings);
     loadChatHistory();
   }, [currentUser?.uid]);
 
@@ -50,51 +50,31 @@ const Pharmacist = () => {
     scrollToBottom();
   }, [messages]);
 
-  const initializeChat = async () => {
-    try {
-      // const chat = model.generateContent({
-      //   model: model,
-      //   temperature: 0.7,
-      //   maxOutputTokens: 1024,
-      //   context: PHARMACY_SYSTEM_PROMPT,
-      // });
-      // setChatInstance(chat);
-    } catch (error) {
-      console.error('Error initializing chat:', error);
-      toast.error('Failed to initialize chat system');
-    }
-  };
-
   const loadChatHistory = async () => {
     if (!currentUser?.uid) return;
 
     try {
-      const messagesRef = collection(db, 'pharmacy_chat_messages');
-      let chatQuery;
+      const messagesRef = collection(db, 'pharmacy', getPharmacyId(currentUser), 'branches', currentUser.branchId, 'chat_messages');
+      // let chatQuery;
 
-      if (currentUser.role === 'branch_manager') {
-        chatQuery = query(
-          messagesRef,
-          where('branchId', '==', currentUser.branchId),
-          orderBy('timestamp', 'asc')
-        );
-      } else {
-        chatQuery = query(
-          messagesRef,
-          where('userId', '==', currentUser.uid),
-          orderBy('timestamp', 'asc')
-        );
-      }
+      // chatQuery = query(
+      //   messagesRef,
+      //   where('branchId', '==', currentUser.branchId),
+      //   orderBy('timestamp', 'asc')
+      // );
+      
 
-      const querySnapshot = await getDocs(chatQuery);
+      const querySnapshot = await getDocs(messagesRef);
       const loadedMessages: ChatMessage[] = [];
+
       querySnapshot.forEach((doc) => {
         loadedMessages.push({
           id: doc.id,
           ...doc.data() as ChatMessage,
-          timestamp: (doc.data() as ChatMessage).timestamp,
+          timestamp: new Date(doc.data().timestamp)
         } as ChatMessage);
       });
+
       setMessages(loadedMessages);
     } catch (error) {
       console.error('Error loading chat history:', error);
@@ -108,7 +88,7 @@ const Pharmacist = () => {
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMessage.trim() || !currentUser?.uid || !chatInstance) return;
+    if (!newMessage.trim() || !currentUser?.uid ) return;
 
     setIsLoading(true);
     try {
@@ -121,27 +101,57 @@ const Pharmacist = () => {
         branchId: currentUser.branchId,
       };
 
-      await addDoc(collection(db, 'pharmacy_chat_messages'), userMessage);
+      await addDoc(collection(db, 'pharmacy', getPharmacyId(currentUser), 'branches', currentUser.branchId, 'chat_messages'), userMessage);
       setMessages(prev => [...prev, userMessage]);
 
+      // Show thinking message
+      const thinkingMessage: ChatMessage = {
+        content: "Thinking...",
+        timestamp: new Date(),
+        sender: 'ai',
+        userId: currentUser.uid,
+        branchId: currentUser.branchId,
+      };
+      setMessages(prev => [...prev, thinkingMessage]);
+
       // Get AI response
-      const result = await chatInstance.sendMessage(newMessage);
-      const response = result.response;
+      const reader = await model.generateContentStream(newMessage);
+      let aiMessage = '';
+      const timestamp = new Date();
 
-      if (response) {
-        const aiMessage: ChatMessage = {
-          content: response.text(),
-          timestamp: new Date(),
-          sender: 'ai',
-          userId: currentUser.uid,
-          branchId: currentUser.branchId,
-        };
+      // Remove any previous thinking message
+      setMessages(prev => prev.filter(msg => msg.content !== "Thinking..."));
 
-        await addDoc(collection(db, 'pharmacy_chat_messages'), aiMessage);
-        setMessages(prev => [...prev, aiMessage]);
+      while (true) {
+        const {value, done} = await reader.stream.next();
+        if (done) break;
+        
+        aiMessage += value.text();
+        // Update messages with the current accumulated response
+        setMessages(prev => {
+          // Remove the previous streaming message if it exists
+          const filteredMessages = prev.filter(msg => msg.timestamp !== timestamp);
+          // Add the updated streaming message
+          return [...filteredMessages, {
+            content: aiMessage,
+            sender: 'ai',
+            timestamp: timestamp,
+            userId: currentUser.uid,
+            branchId: currentUser.branchId
+          }];
+        });
       }
 
+      // Save the final message to Firestore
+      await addDoc(collection(db, 'pharmacy', getPharmacyId(currentUser), 'branches', currentUser.branchId, 'chat_messages'), {
+        content: aiMessage,
+        sender: 'ai',
+        timestamp: timestamp,
+        userId: currentUser.uid,
+        branchId: currentUser.branchId
+      });
       setNewMessage('');
+      
     } catch (error) {
       console.error('Error sending message:', error);
       toast.error('Failed to send message');
@@ -154,13 +164,12 @@ const Pharmacist = () => {
     <Container className="py-4">
       <Card className="chat-container">
         <Card.Header className="d-flex justify-content-between align-items-center">
-          <h4 className="mb-0">Pharmacy Assistant (Powered by Gemini)</h4>
+          <h4 className="mb-0">Pharmacy Assistant</h4>
           <Button 
             variant="outline-secondary" 
             size="sm"
             onClick={() => {
               setMessages([]);
-              initializeChat();
             }}
           >
             New Conversation
@@ -178,11 +187,27 @@ const Pharmacist = () => {
             <div
               key={index}
               className={`message ${message.sender === 'user' ? 'user-message' : 'ai-message'}`}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: message.sender === 'user' ? 'flex-end' : 'flex-start',
+                marginBottom: '1rem'
+              }}
             >
-              <div className="message-content">
+              <div 
+                className="message-content"
+                style={{
+                  backgroundColor: message.sender === 'user' ? '#007bff' : '#28a745',
+                  color: 'white',
+                  padding: '0.5rem 1rem',
+                  borderRadius: '1rem',
+                  maxWidth: '70%',
+                  wordBreak: 'break-word'
+                }}
+              >
                 {message.content}
               </div>
-              <small className="text-muted">
+              <small className="text-muted mt-1">
                 {message.timestamp.toLocaleTimeString()}
               </small>
             </div>

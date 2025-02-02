@@ -7,7 +7,6 @@ import {MenuTestPage} from '../pages/MenuTestPage'
 import {getCSSVariableValue} from '../../_metronic/assets/ts/_utils'
 import {WithChildren} from '../../_metronic/helpers'
 import BuilderPageWrapper from '../pages/layout-builder/BuilderPageWrapper'
-import Pharmacist from '../pages/pharmacist/Pharmacist'
 import Manufacturer from '../pages/manufacturer/Manufacturer'
 import Medicines from '../pages/medicines/Medicines'
 import Branch from '../pages/branch/Branch'
@@ -24,7 +23,7 @@ const AdminRoutes = () => {
     <Routes>
       <Route element={<MasterLayout />}>
         {/* Redirect to Dashboard after success login/registartion */}
-        <Route path='auth/*' element={<Navigate to='/dashboard' />} />
+        <Route path='auth/*' element={<Navigate to='/stats' />} />
         {/* Pages */}
         <Route path='dashboard' element={<DashboardWrapper />} />
         <Route path='builder' element={<BuilderPageWrapper />} />
@@ -32,7 +31,6 @@ const AdminRoutes = () => {
         <Route path='branch' element={<Branch />} />
         {/* Lazy Modules */}
         
-        <Route path='pharmacist' element={<Pharmacist />} />
         <Route path='manufacturer' element={<Manufacturer />} />
         <Route path='medicines' element={<Medicines />} />
         <Route path='*' element={<Navigate to='/error/404' />} />
