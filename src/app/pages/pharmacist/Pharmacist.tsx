@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Container, Form, Button, Card } from 'react-bootstrap';
-import { collection, addDoc, query, where, orderBy, getDocs } from 'firebase/firestore';
+import { collection, addDoc, query, where, orderBy, getDocs} from 'firebase/firestore';
 import { firestore as db } from '../../../firebase/config';
 import { useAuth } from '../../modules/auth';
 import { toast } from 'react-toastify';
@@ -10,29 +10,11 @@ import { model } from '../../../firebase/config';
 interface ChatMessage {
   id?: string;
   content: string;
-  timestamp: Date;
+  timestamp: string;
   sender: 'user' | 'ai';
   userId: string;
   branchId?: string;
 }
-
-const PHARMACY_SYSTEM_PROMPT = `
-You are an intelligent pharmacy assistant powered by Gemini. Your role is to:
-1. Provide accurate information about medications, their uses, and potential side effects
-2. Help identify potential drug interactions
-3. Suggest appropriate over-the-counter medications for common ailments
-4. Provide dosage information and administration guidelines
-5. Offer general health and wellness advice
-
-Important rules:
-- Always mention that the user should consult a healthcare professional for medical advice
-- Be clear about prescription requirements
-- Highlight potential drug interactions and contraindications
-- Use simple, clear language
-- If unsure, always err on the side of caution and recommend professional consultation
-
-Current context: You're assisting in a pharmacy setting. Maintain professional, accurate, and helpful communication.
-`;
 
 const Pharmacist = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -40,6 +22,7 @@ const Pharmacist = () => {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
   const { currentUser } = useAuth();
+  const [medications, setMedications] = useState<any[]>([]);
 
   useEffect(() => {
     console.log(model.safetySettings);
@@ -50,28 +33,40 @@ const Pharmacist = () => {
     scrollToBottom();
   }, [messages]);
 
+  useEffect(() => {
+    const fetchMedications = async () => {
+      if (!currentUser?.uid) return;
+
+      try {
+        const medsRef = collection(db, 'pharmacy', getPharmacyId(currentUser), 'medicines');
+        const querySnapshot = await getDocs(medsRef);
+        const medsData = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        setMedications(medsData);
+      } catch (error) {
+        console.error('Error fetching medications:', error);
+      }
+    };
+
+    fetchMedications();
+  }, [currentUser]);
+
   const loadChatHistory = async () => {
     if (!currentUser?.uid) return;
 
     try {
       const messagesRef = collection(db, 'pharmacy', getPharmacyId(currentUser), 'branches', currentUser.branchId, 'chat_messages');
-      // let chatQuery;
-
-      // chatQuery = query(
-      //   messagesRef,
-      //   where('branchId', '==', currentUser.branchId),
-      //   orderBy('timestamp', 'asc')
-      // );
+      const q = query(messagesRef, orderBy('timestamp', 'asc'));
       
-
-      const querySnapshot = await getDocs(messagesRef);
+      const querySnapshot = await getDocs(q);
       const loadedMessages: ChatMessage[] = [];
 
       querySnapshot.forEach((doc) => {
         loadedMessages.push({
           id: doc.id,
           ...doc.data() as ChatMessage,
-          timestamp: new Date(doc.data().timestamp)
         } as ChatMessage);
       });
 
@@ -88,14 +83,14 @@ const Pharmacist = () => {
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMessage.trim() || !currentUser?.uid ) return;
+    if (!newMessage.trim() || !currentUser?.uid) return;
 
     setIsLoading(true);
     try {
       // Save user message
       const userMessage: ChatMessage = {
         content: newMessage,
-        timestamp: new Date(),
+        timestamp: new Date().toISOString(),
         sender: 'user',
         userId: currentUser.uid,
         branchId: currentUser.branchId,
@@ -107,31 +102,49 @@ const Pharmacist = () => {
       // Show thinking message
       const thinkingMessage: ChatMessage = {
         content: "Thinking...",
-        timestamp: new Date(),
+        timestamp: new Date().toISOString(),
         sender: 'ai',
         userId: currentUser.uid,
         branchId: currentUser.branchId,
       };
       setMessages(prev => [...prev, thinkingMessage]);
 
-      // Get AI response
-      const reader = await model.generateContentStream(newMessage);
-      let aiMessage = '';
-      const timestamp = new Date();
+      // Prepare context for Gemini with medication database
+      const context = `You are a pharmacy assistant with access to the following medications in our inventory:
+      ${medications.map(med => `- ${med.name}: ${med.description}
+      Price_per_unit: ${med.pricePerUnit}
+      medicineType: ${med.medicineType}
+      Stock: ${med.quantity}
+      Category: ${med.category}
+      Usage: ${med.usage || 'As prescribed'}
+      Side Effects: ${med.sideEffects || 'Consult physician for side effects'}
+      `).join('\n')}
 
-      // Remove any previous thinking message
+      Please provide recommendations based ONLY on the medications available in our inventory. When recommending medications:
+      1. Consider the symptoms described
+      2. Suggest suitable medications from our inventory
+      3. Provide alternative options if available
+      4. Include dosage information and warnings
+      5. Always remind the patient to consult a healthcare professional
+      6. Mention the price and availability of recommended medications
+
+      User Query: ${newMessage}`;
+
+      // Get AI response
+      const result = await model.generateContentStream(context);
+      let aiMessage = '';
+      const timestamp = new Date().toISOString();
+
+      // Remove thinking message
       setMessages(prev => prev.filter(msg => msg.content !== "Thinking..."));
 
       while (true) {
-        const {value, done} = await reader.stream.next();
+        const { value, done } = await result.stream.next();
         if (done) break;
-        
+
         aiMessage += value.text();
-        // Update messages with the current accumulated response
         setMessages(prev => {
-          // Remove the previous streaming message if it exists
           const filteredMessages = prev.filter(msg => msg.timestamp !== timestamp);
-          // Add the updated streaming message
           return [...filteredMessages, {
             content: aiMessage,
             sender: 'ai',
@@ -142,7 +155,7 @@ const Pharmacist = () => {
         });
       }
 
-      // Save the final message to Firestore
+      // Save final message to Firestore
       await addDoc(collection(db, 'pharmacy', getPharmacyId(currentUser), 'branches', currentUser.branchId, 'chat_messages'), {
         content: aiMessage,
         sender: 'ai',
@@ -151,7 +164,7 @@ const Pharmacist = () => {
         branchId: currentUser.branchId
       });
       setNewMessage('');
-      
+
     } catch (error) {
       console.error('Error sending message:', error);
       toast.error('Failed to send message');
@@ -165,8 +178,8 @@ const Pharmacist = () => {
       <Card className="chat-container">
         <Card.Header className="d-flex justify-content-between align-items-center">
           <h4 className="mb-0">Pharmacy Assistant</h4>
-          <Button 
-            variant="outline-secondary" 
+          <Button
+            variant="outline-secondary"
             size="sm"
             onClick={() => {
               setMessages([]);
@@ -194,7 +207,7 @@ const Pharmacist = () => {
                 marginBottom: '1rem'
               }}
             >
-              <div 
+              <div
                 className="message-content"
                 style={{
                   backgroundColor: message.sender === 'user' ? '#007bff' : '#28a745',
@@ -208,7 +221,7 @@ const Pharmacist = () => {
                 {message.content}
               </div>
               <small className="text-muted mt-1">
-                {message.timestamp.toLocaleTimeString()}
+                {new Date(message.timestamp).toLocaleString()}
               </small>
             </div>
           ))}
@@ -224,8 +237,8 @@ const Pharmacist = () => {
                 placeholder="Ask about medications, dosages, or health advice..."
                 disabled={isLoading}
               />
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 disabled={isLoading || !newMessage.trim()}
                 variant="primary"
               >

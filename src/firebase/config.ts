@@ -17,7 +17,10 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const vertexAi = getVertexAI(app);
-export const model = getGenerativeModel(vertexAi, { model: "gemini-1.5-flash" });
+export const model = getGenerativeModel(vertexAi, { 
+  model: "gemini-1.5-flash"
+});
+
 export const auth = getAuth(app);
 export const firestore = getFirestore(app)
 export default app;
