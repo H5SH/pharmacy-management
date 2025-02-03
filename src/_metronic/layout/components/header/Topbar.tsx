@@ -19,23 +19,25 @@ const Topbar: FC = () => {
 
   return (
     <div className='d-flex align-items-stretch flex-shrink-0'>
-      {/* Search */}
+      {/* Search 
       <div className={clsx('d-flex align-items-stretch', itemClass)}>
         <Search />
       </div>
+      */}
 
-      {/* Activities */}
+      {/* Activities 
       <div className={clsx('d-flex align-items-center', itemClass)}>
-        {/* begin::Drawer toggle */}
+       
         <div className={btnClass} id='kt_activities_toggle'>
           <i className='bi bi-bell fs-2' />
         </div>
-        {/* end::Drawer toggle */}
+       
       </div>
+      */}
 
-      {/* Quick links */}
+      {/* Quick links 
       <div className={clsx('d-flex align-items-center', itemClass)}>
-        {/* begin::Menu wrapper */}
+       
         <div
           className={btnClass}
           data-kt-menu-trigger='click'
@@ -45,12 +47,14 @@ const Topbar: FC = () => {
           <i className='bi bi-clipboard-check fs-2' />
         </div>
         <QuickLinks />
-        {/* end::Menu wrapper */}
+     
       </div>
+      
 
-      {/* CHAT */}
+
+      {/* CHAT 
       <div className={clsx('d-flex align-items-center', itemClass)}>
-        {/* begin::Menu wrapper */}
+      
         <div
           className={clsx(
             'btn btn-icon btn-active-light-primary btn-custom position-relative',
@@ -62,23 +66,11 @@ const Topbar: FC = () => {
           <i className='bi bi-app-indicator fs-2' />
           <span className='pulse-ring w-45px h-45px' />
         </div>
-        {/* end::Menu wrapper */}
+       
       </div>
+      */}
 
-      {/* NOTIFICATIONS */}
-      <div className={clsx('d-flex align-items-center', itemClass)}>
-        {/* begin::Menu- wrapper */}
-        <div
-          className={clsx(btnClass, 'position-relative')}
-          data-kt-menu-trigger='click'
-          data-kt-menu-attach='parent'
-          data-kt-menu-placement='bottom-end'
-        >
-          <i className='bi bi-grid fs-2' />
-        </div>
-        <HeaderNotificationsMenu />
-        {/* end::Menu wrapper */}
-      </div>
+      
 
       {/* begin::Theme mode */}
       <div className={clsx('d-flex align-items-center', itemClass)}>

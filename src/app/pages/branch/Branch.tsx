@@ -92,7 +92,7 @@ const Branch = () => {
               <button
                   className='btn btn-sm btn-light-primary me-2'
                   onClick={() => {
-                    setCurrentUser({...currentUser, admin: currentUser, branchId: branch.uid, role: UserRole.BRANCH_MANAGER})
+                    setCurrentUser({...currentUser, admin: currentUser, role: UserRole.BRANCH_MANAGER})
                     navigate('/dashboard')
                   }}
                 >

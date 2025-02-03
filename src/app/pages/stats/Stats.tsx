@@ -11,13 +11,15 @@ import { PredictionData, PredictionModel } from '../../../utils/model'
 import { Toast } from '../../../utils/utilities'
 import { collection, getDocs, query } from 'firebase/firestore'
 import { firestore } from '../../../firebase/config'
-import { useAppContext } from '../../../utils/appContext'
 
 
 const DashboardPage = () => {
 
-  const {predictionData, setPredictionData, predictionByName, setPredictionByName, selectedMedName, setSelectedMedName, meds, setMeds, percentage, setPercentage} = useAppContext()
-
+  const [predictionData, setPredictionData] = useState<PredictionModel | undefined>()
+  const [predictionByName, setPredictionByName] = useState<{ dates: Array<string>, yhat: Array<number>, yhat_lower: Array<number>, yhat_upper: Array<number>, average: number, averagelower: number, averageUpper: number } | undefined>();
+  const [selectedMedName, setSelectedMedName] = useState<any>();
+  const [meds, setMeds] = useState<Array<any>>();
+  const [percentage, setPercentage] = useState(0)
 
   function organisePredictionByNameData(result: {name: '', forecast: []}) {
     const dates = []
@@ -48,7 +50,7 @@ const DashboardPage = () => {
   async function getSalesByName() {
     if (selectedMedName) {
       try {
-        const response = await fetch(`https://sales-prediction-firebase-prophet.onrender.com/predict-sales-medicine/?name=${selectedMedName}`)
+        const response = await fetch(`http://127.0.0.1:8000/predict-sales-medicine/?name=${selectedMedName}`)
         const result = await response.json()
         if (Array.isArray(result.forecast)) {
           organisePredictionByNameData(result)
@@ -75,7 +77,7 @@ const DashboardPage = () => {
 
   async function getSalePrediction() {
     try {
-      const response = await fetch('https://sales-prediction-firebase-prophet.onrender.com/predict-sales')
+      const response = await fetch('http://127.0.0.1:8000/predict-sales')
       const result: Array<PredictionData> = await response.json()
       if (Array.isArray(result)) {
         const dates = []

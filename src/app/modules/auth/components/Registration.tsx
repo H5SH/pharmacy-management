@@ -103,11 +103,11 @@ export function Registration() {
       </div>
       {/* end::Heading */}
 
-      {/* begin::Login options */}
+      {/* begin::Login options 
       <div className='row g-3 mb-9'>
-        {/* begin::Col */}
+       
         <div className='col-md-6'>
-          {/* begin::Google link */}
+      
           <a
             href='#'
             className='btn btn-flex btn-outline btn-text-gray-700 btn-active-color-primary bg-state-light flex-center text-nowrap w-100'
@@ -119,13 +119,11 @@ export function Registration() {
             />
             Sign in with Google
           </a>
-          {/* end::Google link */}
+         
         </div>
-        {/* end::Col */}
-
-        {/* begin::Col */}
+       
         <div className='col-md-6'>
-          {/* begin::Google link */}
+          
           <a
             href='#'
             className='btn btn-flex btn-outline btn-text-gray-700 btn-active-color-primary bg-state-light flex-center text-nowrap w-100'
@@ -142,14 +140,14 @@ export function Registration() {
             />
             Sign in with Apple
           </a>
-          {/* end::Google link */}
+         
         </div>
-        {/* end::Col */}
+        
       </div>
-      {/* end::Login options */}
+     */}
 
       <div className='separator separator-content my-14'>
-        <span className='w-125px text-gray-500 fw-semibold fs-7'>Or with email</span>
+        <span className='w-125px text-gray-500 fw-semibold fs-7'>with email</span>
       </div>
 
       {formik.status && (
