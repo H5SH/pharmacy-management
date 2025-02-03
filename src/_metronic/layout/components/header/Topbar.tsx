@@ -1,6 +1,6 @@
-import {FC} from 'react'
+import { FC } from 'react'
 import clsx from 'clsx'
-import {KTIcon, toAbsoluteUrl} from '../../../helpers'
+import { KTIcon, toAbsoluteUrl } from '../../../helpers'
 import {
   HeaderNotificationsMenu,
   HeaderUserMenu,
@@ -8,14 +8,26 @@ import {
   Search,
   ThemeModeSwitcher,
 } from '../../../partials'
-import {useLayout} from '../../core'
+import { useLayout } from '../../core'
+import { useAppContext } from '../../../../utils/appContext'
+import { UserRole } from '../../../../utils/model'
+import { useAuth } from '../../../../app/modules/auth'
+import { useNavigate } from 'react-router-dom'
 
 const itemClass = 'ms-1 ms-lg-3',
   btnClass = 'btn btn-icon btn-active-light-primary w-30px h-30px w-md-40px h-md-40px',
   userAvatarClass = 'symbol-30px symbol-md-40px'
 
 const Topbar: FC = () => {
-  const {config} = useLayout()
+  const { config } = useLayout()
+  const { currentUser, logout, setCurrentUser } = useAuth()
+  const navigate = useNavigate()
+
+
+
+  function goAdmin() {
+    return currentUser?.role === UserRole.BRANCH_MANAGER && currentUser?.admin?.role === UserRole.PHARMACY_ADMIN
+  }
 
   return (
     <div className='d-flex align-items-stretch flex-shrink-0'>
@@ -70,7 +82,25 @@ const Topbar: FC = () => {
       </div>
       */}
 
-      
+      <div className='d-flex flex-column'>
+        <div className='fw-bolder d-flex align-items-center fs-5 pt-5'>
+          {currentUser?.first_name} {currentUser?.first_name}
+        </div>
+        <a href='#' className='fw-bold text-muted text-hover-primary fs-7'>
+          {currentUser?.email}
+        </a>
+      </div>
+
+      <div className='menu-item px-5'>
+        <a onClick={!goAdmin() ? () => logout() : () => {
+          setCurrentUser({ ...currentUser.admin })
+          navigate('/')
+        }} className='menu-link px-5'>
+          {goAdmin() ? <i className="bi bi-person-fill-up  fs-1"></i> : <i className="bi bi-box-arrow-right  fs-1 pt-2"></i>}
+        </a>
+      </div>
+
+
 
       {/* begin::Theme mode */}
       <div className={clsx('d-flex align-items-center', itemClass)}>
@@ -79,8 +109,7 @@ const Topbar: FC = () => {
       {/* end::Theme mode */}
 
       {/* begin::User */}
-      <div className={clsx('d-flex align-items-center', itemClass)} id='kt_header_user_menu_toggle'>
-        {/* begin::Toggle */}
+      {/* <div className={clsx('d-flex align-items-center', itemClass)} id='kt_header_user_menu_toggle'>
         <div
           className={clsx('cursor-pointer symbol', userAvatarClass)}
           data-kt-menu-trigger='click'
@@ -90,8 +119,7 @@ const Topbar: FC = () => {
           <img src={toAbsoluteUrl('/media/avatars/300-1.jpg')} alt='metronic' />
         </div>
         <HeaderUserMenu />
-        {/* end::Toggle */}
-      </div>
+      </div> */}
       {/* end::User */}
 
       {/* begin::Aside Toggler */}
@@ -109,4 +137,4 @@ const Topbar: FC = () => {
   )
 }
 
-export {Topbar}
+export { Topbar }

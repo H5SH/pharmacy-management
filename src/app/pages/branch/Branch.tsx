@@ -96,7 +96,7 @@ const Branch = () => {
                     navigate('/dashboard')
                   }}
                 >
-                  <i className="bi bi-eye fs-1"></i>
+                  <i className="bi bi-person-fill-down fs-1"></i>
                 </button>
                 <button
                   className='btn btn-sm btn-light-primary me-2'
