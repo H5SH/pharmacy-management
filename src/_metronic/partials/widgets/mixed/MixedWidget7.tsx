@@ -72,7 +72,7 @@ const MixedWidget7: React.FC<Props> = ({className, chartColor, chartHeight, perc
           <div ref={chartRef} className='mixed-widget-4-chart'></div>
         </div>
 
-        <div className='pt-5'>
+        {/* <div className='pt-5'>
           <p className='text-center fs-6 pb-5 '>
             <span className='badge badge-light-danger fs-8'>Notes:</span>&nbsp; Current sprint
             requires stakeholders
@@ -83,7 +83,7 @@ const MixedWidget7: React.FC<Props> = ({className, chartColor, chartHeight, perc
           <a href='#' className={`btn btn-${chartColor} w-100 py-3`}>
             Take Action
           </a>
-        </div>
+        </div> */}
       </div>
       {/* end::Body */}
     </div>

@@ -84,38 +84,29 @@ const MixedWidget8: React.FC<Props> = ({className, chartColor, chartHeight, pred
             <div className='d-flex align-items-center me-2'>
               {/* begin::Symbol */}
               <div className='symbol symbol-50px me-3'>
-                <div className='symbol-label bg-light'>
+                {/* <div className='symbol-label bg-light'>
                   <img
                     src={toAbsoluteUrl('/media/svg/brand-logos/plurk.svg')}
                     alt=''
                     className='h-50'
                   />
-                </div>
+                </div> */}
               </div>
               {/* end::Symbol */}
 
-              {/* begin::Title */}
-              <div>
+              {/* <div>
                 <a href='#' className='fs-6 text-gray-800 text-hover-primary fw-bold'>
                   Top Authors
                 </a>
                 <div className='fs-7 text-muted fw-semibold mt-1'>Ricky Hunt, Sandra Trepp</div>
-              </div>
-              {/* end::Title */}
+              </div> */}
             </div>
-            {/* end::Section */}
 
-            {/* begin::Label */}
-            <div className='badge badge-light fw-semibold py-4 px-3'>+82$</div>
-            {/* end::Label */}
+            {/* <div className='badge badge-light fw-semibold py-4 px-3'>+82$</div> */}
           </div>
-          {/* end::Item */}
 
-          {/* begin::Item */}
-          <div className='d-flex flex-stack mb-5'>
-            {/* begin::Section */}
+          {/* <div className='d-flex flex-stack mb-5'>
             <div className='d-flex align-items-center me-2'>
-              {/* begin::Symbol */}
               <div className='symbol symbol-50px me-3'>
                 <div className='symbol-label bg-light'>
                   <img
@@ -125,30 +116,20 @@ const MixedWidget8: React.FC<Props> = ({className, chartColor, chartHeight, pred
                   />
                 </div>
               </div>
-              {/* end::Symbol */}
 
-              {/* begin::Title */}
               <div>
                 <a href='#' className='fs-6 text-gray-800 text-hover-primary fw-bold'>
                   Top Sales
                 </a>
                 <div className='fs-7 text-muted fw-semibold mt-1'>PitStop Emails</div>
               </div>
-              {/* end::Title */}
             </div>
-            {/* end::Section */}
 
-            {/* begin::Label */}
             <div className='badge badge-light fw-semibold py-4 px-3'>+82$</div>
-            {/* end::Label */}
           </div>
-          {/* end::Item */}
 
-          {/* begin::Item */}
           <div className='d-flex flex-stack'>
-            {/* begin::Section */}
             <div className='d-flex align-items-center me-2'>
-              {/* begin::Symbol */}
               <div className='symbol symbol-50px me-3'>
                 <div className='symbol-label bg-light'>
                   <img
@@ -158,9 +139,7 @@ const MixedWidget8: React.FC<Props> = ({className, chartColor, chartHeight, pred
                   />
                 </div>
               </div>
-              {/* end::Symbol */}
 
-              {/* begin::Title */}
               <div className='py-1'>
                 <a href='#' className='fs-6 text-gray-800 text-hover-primary fw-bold'>
                   Top Engagement
@@ -168,19 +147,12 @@ const MixedWidget8: React.FC<Props> = ({className, chartColor, chartHeight, pred
 
                 <div className='fs-7 text-muted fw-semibold mt-1'>KT.com</div>
               </div>
-              {/* end::Title */}
             </div>
-            {/* end::Section */}
 
-            {/* begin::Label */}
             <div className='badge badge-light fw-semibold py-4 px-3'>+82$</div>
-            {/* end::Label */}
-          </div>
-          {/* end::Item */}
+          </div> */}
         </div>
-        {/* end::Items */}
       </div>
-      {/* end::Body */}
     </div>
   )
 }

@@ -1,11 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Card, Modal, Dropdown, Button } from 'react-bootstrap'
+import { Card, Modal, Dropdown, Button, Container, Spinner } from 'react-bootstrap'
 import { collection, getDocs, query, where, or } from 'firebase/firestore'
 import { firestore } from '../../../firebase/config'
 import { Toast } from '../../../utils/utilities'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../../modules/auth'
 import { getPharmacyId } from '../../../utils/functions'
+import axios from 'axios'
+import { format } from 'date-fns'
+import { Document, Page, Text, View, StyleSheet, PDFViewer, pdf } from '@react-pdf/renderer'
+import { addDoc, doc, updateDoc, increment } from 'firebase/firestore'
+import { firestore as db } from '../../../firebase/config'
+import { toast } from 'react-hot-toast'
 
 interface Medicine {
   id: string
@@ -28,6 +34,26 @@ interface CartItem extends Medicine {
   selectedUnit: 'piece' | 'box' // for tablets
 }
 
+interface WeatherData {
+  main: {
+    temp: number;
+    humidity: number;
+  };
+  weather: [{
+    main: string; // weather condition
+  }];
+}
+
+const styles = StyleSheet.create({
+  page: { padding: 30 },
+  header: { fontSize: 18, marginBottom: 20, textAlign: 'center' },
+  // @ts-ignore
+  table: { display: 'table', width: '100%', borderStyle: 'solid', borderWidth: 1 },
+  tableRow: { flexDirection: 'row' },
+  tableCol: { width: '25%', borderStyle: 'solid', borderWidth: 1, padding: 5 },
+  tableCell: { margin: 'auto', fontSize: 10 }
+});
+
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState<Medicine[]>([])
@@ -40,6 +66,8 @@ export default function Home() {
   const [cartAnimation, setCartAnimation] = useState(false)
   const searchTimeout = useRef<NodeJS.Timeout>()
   const { currentUser } = useAuth()
+  const [isCheckoutEnabled, setIsCheckoutEnabled] = useState(false)
+  const [coordinates, setCoordinates] = useState<{lat: number, lon: number} | null>(null);
 
   const searchMedicines = async (query: string) => {
     if (!query.trim()) {
@@ -88,6 +116,43 @@ export default function Home() {
     }
   }, [searchQuery])
 
+  useEffect(() => {
+    setIsCheckoutEnabled(cartItems.length > 0)
+  }, [cartItems])
+
+  useEffect(() => {
+    const getLocation = () => {
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            setCoordinates({
+              lat: position.coords.latitude,
+              lon: position.coords.longitude
+            });
+          },
+          (error) => {
+            console.error("Error getting location:", error);
+            toast.error("Could not get location. Using default coordinates.");
+            // Set default coordinates if location access is denied
+            setCoordinates({
+              lat: 0, // Set your default latitude
+              lon: 0  // Set your default longitude
+            });
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
+          }
+        );
+      } else {
+        toast.error("Geolocation is not supported by this browser.");
+      }
+    };
+
+    getLocation();
+  }, []);
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (searchResults.length === 0) return
 
@@ -128,6 +193,125 @@ export default function Home() {
     setTimeout(() => setCartAnimation(false), 1000)
 
     Toast('success', 'Added to cart')
+  }
+
+  const handleCheckout = async () => {
+    if (!currentUser?.uid || cartItems.length === 0 || !coordinates) return
+
+    try {
+      // Updated weather fetch using coordinates
+      const weatherApi = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY;
+      const weatherResponse = await axios.get<WeatherData>(
+        `https://api.openweathermap.org/data/3.0/onecall?lat=${coordinates.lat}&lon=${coordinates.lon}&appid=${'69a2c29452503d68db79c3cdfc113af5'}`
+      );
+
+      const currentDate = new Date();
+      const weatherData = weatherResponse.data;
+
+      // Store sales data for each item
+      for (const item of cartItems) {
+        const salesData = {
+          name: item.name,
+          date: format(currentDate, 'yyyy-MM-dd'),
+          quantity_sold: item.cartQuantity,
+          weather_condition: weatherData.weather[0].main,
+          temperature: Math.round(weatherData.main.temp),
+          humidity: weatherData.main.humidity,
+          is_promotion: false,
+          day_of_week: format(currentDate, 'EEEE'),
+          branchId: currentUser.branchId,
+          userId: currentUser.uid,
+          timestamp: currentDate,
+          location: {
+            latitude: coordinates.lat,
+            longitude: coordinates.lon
+          }
+        }
+
+        // Add to sales_data collection
+        await addDoc(
+          collection(db, 'pharmacy', getPharmacyId(currentUser), 'branches', currentUser.branchId, 'sales_data'),
+          salesData
+        )
+
+        // Update medication quantity in inventory
+        const medRef = doc(db, 'pharmacy', getPharmacyId(currentUser), 'branches', currentUser.branchId, 'medications', item.id)
+        await updateDoc(medRef, {
+          quantity: increment(-item.cartQuantity)
+        })
+      }
+
+      // Generate PDF
+      const MyDocument = () => (
+        <Document>
+          <Page size="A4" style={styles.page}>
+            <Text style={styles.header}>Sales Receipt</Text>
+            <View style={styles.table}>
+              <View style={styles.tableRow}>
+                <View style={styles.tableCol}>
+                  <Text style={styles.tableCell}>Item</Text>
+                </View>
+                <View style={styles.tableCol}>
+                  <Text style={styles.tableCell}>Quantity</Text>
+                </View>
+                <View style={styles.tableCol}>
+                  <Text style={styles.tableCell}>Price</Text>
+                </View>
+                <View style={styles.tableCol}>
+                  <Text style={styles.tableCell}>Total</Text>
+                </View>
+              </View>
+              {cartItems.map((item, index) => (
+                <View style={styles.tableRow} key={index}>
+                  <View style={styles.tableCol}>
+                    <Text style={styles.tableCell}>{item.name}</Text>
+                  </View>
+                  <View style={styles.tableCol}>
+                    <Text style={styles.tableCell}>{item.cartQuantity}</Text>
+                  </View>
+                  <View style={styles.tableCol}>
+                    <Text style={styles.tableCell}>${item.pricePerUnit}</Text>
+                  </View>
+                  <View style={styles.tableCol}>
+                    <Text style={styles.tableCell}>${item.pricePerUnit * item.cartQuantity}</Text>
+                  </View>
+                </View>
+              ))}
+            </View>
+            <Text style={{ marginTop: 20 }}>
+              Total Amount: ${cartItems.reduce((sum, item) => sum + (item.pricePerUnit * item.cartQuantity), 0)}
+            </Text>
+          </Page>
+        </Document>
+      )
+
+      // Open PDF in new window
+      const win = window.open('', '_blank')
+      if (win) {
+        win.document.write('<iframe width="100%" height="100%" src="' + URL.createObjectURL(await pdf(<MyDocument />).toBlob()) + '"></iframe>')
+      }
+
+      // Clear cart
+      setCartItems([])
+      toast.success('Checkout completed successfully!')
+
+    } catch (error) {
+      console.error('Checkout error:', error)
+      toast.error('Checkout failed. Please try again.')
+    }
+  }
+
+  if (!coordinates) {
+    return (
+      <Container className="py-4">
+        <div className="text-center">
+          <Spinner animation="border" role="status">
+            <span className="visually-hidden">Getting location...</span>
+          </Spinner>
+          <p className="mt-2">Getting your location...</p>
+        </div>
+      </Container>
+    );
   }
 
   return (
@@ -228,6 +412,14 @@ export default function Home() {
                     </>
                   )}
                 </Dropdown.Menu>
+                <Button
+                  variant="success"
+                  className="w-100 mt-2"
+                  disabled={!isCheckoutEnabled}
+                  onClick={handleCheckout}
+                >
+                  Checkout
+                </Button>
               </Dropdown>
             </div>
           </div>

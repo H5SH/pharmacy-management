@@ -11,15 +11,15 @@ import { PredictionData, PredictionModel } from '../../../utils/model'
 import { Toast } from '../../../utils/utilities'
 import { collection, getDocs, query } from 'firebase/firestore'
 import { firestore } from '../../../firebase/config'
+import { useAppContext } from '../../../utils/appContext'
+import { useAuth } from '../../modules/auth'
 
 
 const DashboardPage = () => {
 
-  const [predictionData, setPredictionData] = useState<PredictionModel | undefined>()
-  const [predictionByName, setPredictionByName] = useState<{ dates: Array<string>, yhat: Array<number>, yhat_lower: Array<number>, yhat_upper: Array<number>, average: number, averagelower: number, averageUpper: number } | undefined>();
-  const [selectedMedName, setSelectedMedName] = useState<any>();
-  const [meds, setMeds] = useState<Array<any>>();
-  const [percentage, setPercentage] = useState(0)
+  const {predictionData, setPredictionData, predictionByName, setPredictionByName, selectedMedName, setSelectedMedName, meds, setMeds, percentage, setPercentage} = useAppContext()
+  const {currentUser} = useAuth()
+
 
   function organisePredictionByNameData(result: {name: '', forecast: []}) {
     const dates = []
@@ -50,7 +50,7 @@ const DashboardPage = () => {
   async function getSalesByName() {
     if (selectedMedName) {
       try {
-        const response = await fetch(`http://127.0.0.1:8000/predict-sales-medicine/?name=${selectedMedName}`)
+        const response = await fetch(`${process.env.REACT_APP_SALES_PREDICTION}/predict-sales-medicine/?name=${selectedMedName}`)
         const result = await response.json()
         if (Array.isArray(result.forecast)) {
           organisePredictionByNameData(result)
@@ -65,7 +65,7 @@ const DashboardPage = () => {
   async function getAllMeds() {
     try {
       // const q = query(collection(firestore, 'medicines'))
-      const response = await getDocs(query(collection(firestore, 'medicines')))
+      const response = await getDocs(query(collection(firestore, 'pharmacy', currentUser.uid || '', "medicines")))
       if (!response.empty) {
         setMeds(response.docs.map((med) => med.data()))
         setSelectedMedName(response.docs[0].data().name)
@@ -77,7 +77,7 @@ const DashboardPage = () => {
 
   async function getSalePrediction() {
     try {
-      const response = await fetch('http://127.0.0.1:8000/predict-sales')
+      const response = await fetch(`${process.env.REACT_APP_SALES_PREDICTION}/predict-sales`)
       const result: Array<PredictionData> = await response.json()
       if (Array.isArray(result)) {
         const dates = []
@@ -106,7 +106,6 @@ const DashboardPage = () => {
 
   useEffect(() => {
     getSalePrediction()
-    getSalesByName()
     getAllMeds()
     // We have to show toolbar only for dashboard page
     document.getElementById('kt_layout_toolbar')?.classList.remove('d-none')
@@ -114,6 +113,8 @@ const DashboardPage = () => {
       document.getElementById('kt_layout_toolbar')?.classList.add('d-none')
     }
   }, [])
+
+  console.log(meds, 'meds')
 
   return (
     <>
@@ -129,7 +130,7 @@ const DashboardPage = () => {
             iconColor='white'
             title='Shopping Cart'
             titleColor='white'
-            description='Lands, Houses, Ranchos, Farms'
+            description='medications'
             descriptionColor='white'
           />
         </div>
@@ -140,10 +141,10 @@ const DashboardPage = () => {
             svgIcon='cheque'
             color='primary'
             iconColor='white'
-            title='Total Meds: 50'
+            title={`Total Meds: ${meds?.length}`}
             titleColor='white'
             descriptionColor='white'
-            description='Tablets: 10, liquid: 30, Others: 10'
+            description={`Tablets: ${meds?.filter((med)=> med.medicineType === 'liquid').length}, liquid: ${meds?.filter((med)=> med.medicineType === 'tablets').length}, Others: ${meds?.filter((med)=> med.medicineType === 'powder').length}`}
           />
         </div>
 
@@ -156,7 +157,7 @@ const DashboardPage = () => {
             titleColor='white'
             descriptionColor='white'
             title='Sales Stats'
-            description='50% Increased for FY20'
+            description={`${percentage}% Increased for FY25`}
           />
         </div>
       </div>
