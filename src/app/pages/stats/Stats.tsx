@@ -50,7 +50,7 @@ const DashboardPage = () => {
   async function getSalesByName() {
     if (selectedMedName) {
       try {
-        const response = await fetch(`${process.env.REACT_APP_SALES_PREDICTION}/predict-sales-medicine/?name=${selectedMedName}`)
+        const response = await fetch(`${process.env.REACT_APP_SALES_PREDICTION}/predict-sales-medicine/?name=${selectedMedName}&pharmacyId=${currentUser.uid}`)
         const result = await response.json()
         if (Array.isArray(result.forecast)) {
           organisePredictionByNameData(result)
@@ -77,7 +77,7 @@ const DashboardPage = () => {
 
   async function getSalePrediction() {
     try {
-      const response = await fetch(`${process.env.REACT_APP_SALES_PREDICTION}/predict-sales`)
+      const response = await fetch(`${process.env.REACT_APP_SALES_PREDICTION}/predict-sales/?pharmacyId=${currentUser.uid}`)
       const result: Array<PredictionData> = await response.json()
       if (Array.isArray(result)) {
         const dates = []

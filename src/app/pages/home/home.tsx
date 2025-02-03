@@ -35,6 +35,7 @@ interface CartItem extends Medicine {
 }
 
 interface WeatherData {
+  current: any
   main: {
     temp: number;
     humidity: number;
@@ -206,7 +207,9 @@ export default function Home() {
       );
 
       const currentDate = new Date();
-      const weatherData = weatherResponse.data;
+      // @ts-ignore
+      const weatherData = weatherResponse.data.current;
+      console.log(weatherResponse,weatherData, 'weather')
 
       // Store sales data for each item
       for (const item of cartItems) {
@@ -214,9 +217,9 @@ export default function Home() {
           name: item.name,
           date: format(currentDate, 'yyyy-MM-dd'),
           quantity_sold: item.cartQuantity,
-          weather_condition: weatherData.weather[0].main,
-          temperature: Math.round(weatherData.main.temp),
-          humidity: weatherData.main.humidity,
+          weather_condition: weatherData.weather?.[0]?.main,
+          temperature: Math.round(weatherData.temp),
+          humidity: weatherData.humidity,
           is_promotion: false,
           day_of_week: format(currentDate, 'EEEE'),
           branchId: currentUser.branchId,
@@ -230,13 +233,14 @@ export default function Home() {
 
         // Add to sales_data collection
         await addDoc(
-          collection(db, 'pharmacy', getPharmacyId(currentUser), 'branches', currentUser.branchId, 'sales_data'),
+          collection(db, 'pharmacy', getPharmacyId(currentUser), 'sales_data'),
           salesData
         )
+        console.log(item, 'item')
 
         // Update medication quantity in inventory
-        const medRef = doc(db, 'pharmacy', getPharmacyId(currentUser), 'branches', currentUser.branchId, 'medications', item.id)
-        await updateDoc(medRef, {
+        const medRef = doc(db, 'pharmacy', getPharmacyId(currentUser), 'medicines', item.id)
+        updateDoc(medRef, {
           quantity: increment(-item.cartQuantity)
         })
       }
