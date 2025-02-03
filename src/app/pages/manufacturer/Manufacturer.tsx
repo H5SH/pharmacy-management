@@ -16,6 +16,7 @@ export default function Manufacturer() {
 
   const { refresh } = useAppContext()
   const { currentUser } = useAuth()
+  console.log(currentUser, 'currentUser')
   const [manufacturers, setManufacturers] = useState<ManufacturerModal[]>([])
   const [showDrawer, setShowDrawer] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
