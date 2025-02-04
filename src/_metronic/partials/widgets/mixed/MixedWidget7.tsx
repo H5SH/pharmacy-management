@@ -96,7 +96,7 @@ const chartOptions = (chartColor: string, chartHeight: string, percentage: numbe
   const labelColor = getCSSVariableValue('--bs-gray-700')
 
   return {
-    series: [percentage || 0],
+    series: [percentage || 70],
     chart: {
       fontFamily: 'inherit',
       height: chartHeight,

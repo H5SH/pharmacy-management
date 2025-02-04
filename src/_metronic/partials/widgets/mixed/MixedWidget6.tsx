@@ -174,7 +174,7 @@ const chartOptions = (chartHeight: string, chartColor: string, predictionData: {
     series: [
       {
         name: 'Net Profit',
-        data: predictionData?.yhat || [],
+        data: [10, 20, 40, 30, 50],
       },
     ],
     chart: {
@@ -209,7 +209,7 @@ const chartOptions = (chartHeight: string, chartColor: string, predictionData: {
       colors: [baseColor],
     },
     xaxis: {
-      categories: predictionData?.dates || [],
+      categories: ['jan', 'feb', 'mar', 'mey', 'jun'],
       axisBorder: {
         show: false,
       },
