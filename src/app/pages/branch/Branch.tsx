@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Button, Container, Table } from "react-bootstrap";
-import { collection, getDocs, addDoc, query, deleteDoc, doc } from "firebase/firestore";
+import { collection, getDocs, addDoc, query, deleteDoc, doc, where } from "firebase/firestore";
 import { firestore as db, firestore } from "../../../firebase/config";
 // import "react-modern-drawer/dist/index.css";
 import { toast } from "react-toastify";
@@ -25,6 +25,8 @@ const Branch = () => {
   const [branch, setBranch] = useState<Branch | null>()
   const [deleteBranch, setDeleteBranch] = useState<Branch | null>(null)
   const navigate = useNavigate()
+  const [stockRequests, setStockRequests] = useState<any[]>([])
+  const [selectedBranch, setSelectedBranch] = useState<string>('')
 
   const { currentUser, setCurrentUser } = useAuth()
   const { refresh, setRefresh } = useAppContext()
@@ -44,6 +46,28 @@ const Branch = () => {
     }
   };
 
+  const fetchStockRequests = async (branchId: string) => {
+    try {
+      const requestsRef = collection(
+        firestore,
+        'pharmacy',
+        currentUser.uid,
+        'branches',
+        branchId,
+        'stockRequests'
+      )
+      const q = query(requestsRef, where('status', '==', 'pending'))
+      const querySnapshot = await getDocs(q)
+      const requests = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }))
+      setStockRequests(requests)
+    } catch (error) {
+      console.error('Error fetching stock requests:', error)
+    }
+  }
+
   async function handleDelete(){
     try{
       await deleteDoc(doc(firestore, 'pharmacy', currentUser.uid!, "branches", deleteBranch.uid))
@@ -58,6 +82,12 @@ const Branch = () => {
   useEffect(() => {
     fetchBranches();
   }, [refresh]);
+
+  useEffect(() => {
+    if (selectedBranch) {
+      fetchStockRequests(selectedBranch)
+    }
+  }, [selectedBranch])
 
   return (
     <Container>
@@ -83,7 +113,7 @@ const Branch = () => {
         </thead>
         <tbody>
           {branches.map((branch, index) => (
-            <tr key={branch.uid}>
+            <tr key={branch.uid} onClick={()=> setSelectedBranch(branch.name)} className={`bg-${selectedBranch === branch.name ? "danger":""}`}>
               <td>{index + 1}</td>
               <td>{branch.name}</td>
               <td>{branch.city}</td>
@@ -120,6 +150,30 @@ const Branch = () => {
           ))}
         </tbody>
       </Table>
+
+      {currentUser.role === UserRole.PHARMACY_ADMIN &&  (
+        <div className="dropdown">
+          <button 
+            className="btn btn-secondary dropdown-toggle" 
+            type="button" 
+            data-bs-toggle="dropdown"
+          >
+            Stock Requests ({stockRequests.length})
+          </button>
+          <ul className="dropdown-menu">
+            {stockRequests.map((request) => (
+              <li key={request.id} className="dropdown-item">
+                <div className="d-flex justify-content-between align-items-center">
+                  <span>{request.medicineName}</span>
+                  <small className="text-muted">
+                    Current Stock: {request.quantity}
+                  </small>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <BranchForm
         showDrawer={showDrawer}
